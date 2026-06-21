@@ -1,0 +1,13 @@
+{
+  "_comment": "Edit any value to override the in-app default. Keys not listed here keep their hardcoded default. Push to repo and the phone picks it up on next open.",
+  "Rent": 975,
+  "Kids": 500,
+  "Phone": 80,
+  "Food": 400,
+  "Subs": 60,
+  "Vice": 240,
+  "Travel": 50,
+  "Xtra": 200,
+  "Shop": 300,
+  "Save": null
+}

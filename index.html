@@ -20,7 +20,7 @@
       --accent:#e57f55;--accent-soft:#f0a587;--accent-ink:#ffffff;--dir:-1;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
-    html,body{background:var(--bg);}
+    html,body{background:var(--bg);scroll-behavior:smooth;}
     body{font-family:'Manrope',system-ui,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;transition:background .7s ease;min-height:100vh;}
     .app{background:var(--bg);transition:background .7s ease;min-height:100vh;padding:48px 24px 96px;}
     .wrap{max-width:1060px;margin:0 auto;}
@@ -58,6 +58,9 @@
     .soc svg{width:22px;height:22px;}
     .soc .tip{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%) scale(.9);background:var(--text);color:var(--bg);font-family:'Manrope';font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:5;}
     .soc:hover .tip{opacity:1;transform:translateX(-50%) scale(1);}
+    .soc-wide{width:auto;padding:0 20px;gap:10px;display:inline-flex;flex-direction:row;align-items:center;}
+    .soc-wide .soc-wide-label{font-size:13px;font-weight:700;color:var(--text-soft);transition:color .2s;}
+    .soc-wide:hover .soc-wide-label{color:var(--accent);}
     .toggle{margin-top:8px;position:relative;display:inline-flex;padding:6px;border-radius:40px;gap:0;align-self:flex-start;}
     .toggle .thumb{position:absolute;top:6px;left:6px;height:calc(100% - 12px);width:calc(50% - 6px);border-radius:34px;background:var(--accent);box-shadow:calc(var(--dir)*3px) 3px 8px rgba(0,0,0,.14);transition:transform .5s cubic-bezier(.62,.04,.3,1),background .7s ease;}
     .app[data-mode="off"] .toggle .thumb{transform:translateX(100%);}
@@ -94,12 +97,16 @@
 
     /* timeline */
     .tl{display:flex;flex-direction:column;gap:8px;}
-    .tl-item{display:grid;grid-template-columns:100px 1fr;gap:18px;padding:14px 0;}
+    .tl-item{display:grid;grid-template-columns:60px 1fr 110px;gap:18px;padding:14px 0;align-items:center;}
     .tl-when{font-family:'Sora';font-weight:700;font-size:12.5px;color:var(--accent);padding-top:2px;}
     .tl-role{font-weight:700;font-size:15px;}
     .tl-org{font-size:13px;color:var(--text-faint);font-weight:600;margin:1px 0 7px;}
     .tl-desc{font-size:13.5px;line-height:1.6;color:var(--text-soft);}
     .tl-item+.tl-item{border-top:1px solid rgba(183,192,208,.4);}
+    .tl-img{width:110px;height:110px;border-radius:16px;overflow:hidden;flex:none;position:relative;}
+    .tl-img img{width:100%;height:100%;object-fit:cover;display:block;}
+    .tl-img-ph{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;font-family:'Sora';font-size:10px;font-weight:700;color:var(--text-faint);padding:8px;line-height:1.4;}
+    @media(max-width:560px){.tl-item{grid-template-columns:60px 1fr;}.tl-img{grid-column:1/-1;width:100%;height:140px;}}
 
     /* skills */
     .skill{margin-bottom:16px;}
@@ -134,6 +141,12 @@
     .cert-list{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
     @media(max-width:560px){.cert-list{grid-template-columns:1fr;}}
     .cert-item{display:flex;align-items:center;gap:12px;padding:11px 8px;font-size:13px;font-weight:600;color:var(--text-soft);}
+    .cert-note{font-style:italic;font-size:11.5px;font-weight:500;color:var(--text-faint);}
+    .see-sidequests{margin-top:16px;border:none;cursor:pointer;background:var(--bg);border-radius:14px;padding:11px 16px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:'Manrope',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.04em;color:var(--text-soft);transition:color .2s,transform .2s,box-shadow .7s ease;}
+    .see-sidequests:hover{color:var(--accent);transform:translateY(-2px);}
+    .see-sidequests .ssq-arrow{display:inline-grid;place-items:center;width:18px;height:18px;color:var(--accent);transition:transform .25s ease;}
+    .see-sidequests:hover .ssq-arrow{transform:translateX(3px);}
+    .see-sidequests .ssq-arrow svg{width:16px;height:16px;}
     .cert-ico{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:var(--accent);flex:none;}
     .cert-ico svg{width:24px;height:24px;}
 
@@ -168,6 +181,18 @@
     .fun-icon .emoji-fb{font-size:26px;line-height:1;display:none;}
     .fun-name{font-size:11px;font-weight:700;color:var(--text-soft);text-align:center;line-height:1.3;}
     .fun-stars{display:flex;gap:2px;font-size:14px;}
+    .about-into-label{font-family:'Sora';font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin:24px 0 14px;padding-top:18px;border-top:1px solid rgba(183,192,208,.4);}
+
+    /* subtle glow for website button */
+    .cbtn.glow{position:relative;}
+    .cbtn.glow::before{content:"";position:absolute;inset:-2px;border-radius:18px;background:radial-gradient(circle at 30% 50%,var(--accent-soft),transparent 65%);opacity:.35;filter:blur(8px);z-index:-1;animation:websiteGlow 3.2s ease-in-out infinite;pointer-events:none;}
+    @keyframes websiteGlow{0%,100%{opacity:.25;}50%{opacity:.55;}}
+
+    /* PNG icons match SVG sizes in each container */
+    .soc img.ico-png{width:22px;height:22px;}
+    .card-ico img.ico-png{width:22px;height:22px;}
+    .cert-ico img.ico-png{width:24px;height:24px;}
+    .ci img.ico-png{width:20px;height:20px;}
   </style>
 </head>
 <body>
@@ -255,7 +280,6 @@ const DATA = {
     chips: [],
     chipsLabel: null,
     certs: [
-      {name:"Professional Scrum Master I (PSM I)",          icon:"award"},
       {name:"Lean Six Sigma — White Belt & Yellow Belt",    icon:"chart"},
       {name:"Google AI Pro · Prompting Essentials · AI Essentials", icon:"brain"},
       {name:"Supervisor Responsibilities & Due Diligence",  icon:"shield"},
@@ -266,29 +290,29 @@ const DATA = {
       {name:"Lockout / Tagout (LOTO)",                      icon:"lock"},
       {name:"First Aid & CPR — Level C",                    icon:"plus"},
       {name:"High School Diploma",                          icon:"grad"},
+      {name:"Professional Scrum Master I (PSM I)",          icon:"award", note:"In progress"},
     ],
     sectionTitles:{work:"Experience",proj:"Certifications"},
   },
   off: {
-    role: "Dad, Hockey Nut & App Tinkerer",
-    tagline: "When the work laptop closes I'm watching hockey, taking the kids outside, or wrestling AI into building something that may or may not ever ship.",
+    role: "Professional savasana practitioner",
+    tagline: "Do not let making a living prevent you from making a life. — John Wooden",
     about: {
       sub: "Who you'd grab a beer with",
-      bio: <p className="bio">Proud dad of 2 — bi-weekly time with the kids is the best part of any week. Been on TV (long story). Been coast to coast but <strong>never left the country</strong> — someday. Big fan of Christmas spirit and an avid hater of cold that doesn't involve sand and warm sun. Off hours: nature, friends, and wrestling AI for progress on things that actually matter.</p>,
+      bio: <p className="bio">I love <strong>Hockey, Fishing, nature</strong> and every second I get with my kids — teen years are coming too fast.</p>,
       facts: [["Home base","Peterborough, ON"],["Currently","Rock hounding + retail venture"],["Biggest fan of","Christmas 🎄 & Hockey 🏒"]],
     },
     timeline: [
-      {when:"Bi-weekly",role:"Dad first",org:"The most important gig",desc:"Time with the kids holds the most weight. Everything else fits around it."},
-      {when:"Side quest",role:"Online retail venture",org:"AI-automated e-commerce",desc:"Trying my hand at automated AI-assisted online retail. Learning by breaking things constantly."},
-      {when:"Weekends",role:"Youth basketball volunteer",org:"Friend's youth program",desc:"Occasional volunteer with a friend's youth basketball program. Good for the soul."},
-      {when:"Always",role:"Hockey fan & app builder",org:"Wherever there's WiFi",desc:"Building PWA apps and Daily Tracker systems, exploring AI tools, and going fishing when the bugs aren't terrible."},
+      {when:"#1",role:"Travel the world",org:"Or at least outside Canada",desc:"I've seen coast to coast but never left the motherland.",img:"travel-the-world.png"},
+      {when:"#2",role:"See ancient history",org:"Hindered by #1, but a big one",desc:"Fascinated by history — would love to walk through it in person.",img:"ancient-history.png"},
+      {when:"#3",role:"Be a grandparent",org:"Way too early to be thinking about it",desc:"I miss the toddler phase — no back talk and they wipe their own bum.",img:"grandparent.png"},
     ],
     skillsTitle: "Things I'm into",
     funItems: [
       /* ── To replace any icon: drop a same-named .png into your assets/ folder ── */
       /* ── Stars: change the number to update rating ───────────────────────────── */
       {label:"PTBO",          key:"ptbo",        emoji:"🏙️", stars:3},
-      {label:"Btown",         key:"btown",       emoji:"🌇",  stars:3},
+      {label:"Brampton",      key:"btown",       emoji:"🌇",  stars:3},
       {label:"Toronto",       key:"toronto",      emoji:"🌆",  stars:3},
       {label:"Markham",       key:"markham",      emoji:"🏘️", stars:3},
       {label:"Caledon",       key:"caledon",      emoji:"🌿",  stars:3},
@@ -304,35 +328,34 @@ const DATA = {
       {label:"Claude",        key:"claude",       emoji:"🤖",  stars:3},
       {label:"Google",        key:"google",       emoji:"🔍",  stars:3},
       {label:"Friends",       key:"friends",      emoji:"👥",  stars:3},
-      {label:"Fam",           key:"fam",          emoji:"❤️", stars:3},
-      {label:"Cashi",         key:"cashi",        emoji:"⭐",  stars:5},
-      {label:"Amira",         key:"amira",        emoji:"⭐",  stars:5},
+      {label:"Family",        key:"fam",          emoji:"❤️", stars:3},
     ],
     projects: [
-      {t:"PFS",         d:"Personal Finance System — budget, tracking and financial oversight. Link coming.",       meta:"In progress"},
-      {t:"Habit Tracker",d:"Daily habit tracking PWA. Link coming.",                                               meta:"In progress"},
-      {t:"RF Workflow",  d:"RF cost efficient workflow data capture system. Link coming.",                          meta:"In progress"},
-      {t:"P2PC",         d:"Peer to peer choice social infrastructure. Link coming.",                              meta:"Concept"},
+      {t:"PDF2Sheets",         d:"Local PDF\u2192spreadsheet tool. Drag PDFs in, get a tidy xlsx out.",                meta:"Live",        href:"projects/pdf2sheets/"},
+      {t:"Supervisor Info Hub",d:"Curated H&S resources, forms and links for supervisors.",                            meta:"Live",        href:"projects/supervisor-info/"},
+      {t:"Trackers",           d:"Spending + habit PWAs for the phone. Built for distracted brains.",                  meta:"Live",        href:"projects/trackers/"},
+      {t:"DalaDash",           d:"Desktop workstation for the data the trackers collect. Filters, charts, comparisons.",meta:"Live",       href:"projects/dash/"},
     ],
-    sectionTitles:{work:"Off Hours",proj:"Side Quests"},
+    sectionTitles:{work:"Top 3 Bucket List",proj:"Side Quests"},
   },
 };
 
 const SOCIALS_BUSINESS = [
-  {label:"GitHub",    name:"github",    icon:I.github,    href:"https://github.com/Dataidoo"},
   {label:"Email",     name:"mail",      icon:I.mail,      href:"mailto:steve@stevesite.ca"},
-  {label:"Website",   name:"link",      icon:I.link,      href:"https://stevesite.ca"},
+  // TODO: when projects page is ready, change href below to that page URL
+  {label:"Projects",  name:"proj",      icon:I.proj,      href:"#projects-section", wide:true},
 ];
 const SOCIALS_OFF = [
-  {label:"Instagram", name:"instagram", icon:I.instagram, href:"#"},
-  {label:"Facebook",  name:"facebook",  icon:I.facebook,  href:"#"},
-  {label:"Website",   name:"link",      icon:I.link,      href:"https://stevesite.ca"},
+  // TODO: replace href values below with your real links
+  {label:"Facebook",  name:"facebook",  icon:I.facebook,  href:"https://facebook.com/REPLACE_ME"},
+  {label:"Instagram", name:"instagram", icon:I.instagram, href:"https://instagram.com/REPLACE_ME"},
+  {label:"Email",     name:"mail",      icon:I.mail,      href:"mailto:REPLACE_ME@example.com"},
 ];
 
 function Ico({name, w=20, h=20, children}) {
   const [err, setErr] = useState(false);
   if (err) return children;
-  return <img src={`assets/icon-${name}.png`} width={w} height={h}
+  return <img src={`assets/icon-${name}.png`} className="ico-png"
     style={{objectFit:"contain",display:"block"}}
     onError={()=>setErr(true)} alt="" />;
 }
@@ -420,8 +443,7 @@ function App() {
               </div>
             </div>
             <div className="mode-label">
-              <span className="now">Currently viewing</span>
-              <span className="val">{mode==="off"?"Off the clock":"On the clock"}</span>
+              <span className="val">{mode==="off"?"On the dock":"On the clock"}</span>
             </div>
           </div>
 
@@ -432,8 +454,10 @@ function App() {
             <p className="tagline">{d.tagline}</p>
             <div className="socials">
               {(mode==="off"?SOCIALS_OFF:SOCIALS_BUSINESS).map(s=>(
-                <a key={s.label} className="soc raised" href={s.href} target="_blank" rel="noreferrer">
-                  <Ico name={s.name}>{s.icon}</Ico><span className="tip">{s.label}</span>
+                <a key={s.label} className={"soc raised"+(s.wide?" soc-wide":"")} href={s.href} target={s.href.startsWith("#")?"_self":"_blank"} rel="noreferrer">
+                  <Ico name={s.name}>{s.icon}</Ico>
+                  {s.wide && <span className="soc-wide-label">{s.label}</span>}
+                  <span className="tip">{s.label}</span>
                 </a>
               ))}
             </div>
@@ -454,38 +478,45 @@ function App() {
                 <span key={k} className="fact pressed"><b>{v}</b> · {k}</span>
               ))}
             </div>
+            {mode==="off" && <>
+              <div className="about-into-label">{d.skillsTitle}</div>
+              <div className="fun-grid">
+                {d.funItems.map((item,i)=>(
+                  <div key={i} className="fun-item">
+                    <span className="fun-icon raised">
+                      <img
+                        src={`assets/${item.key}.png`}
+                        alt={item.label}
+                        onError={e=>{e.target.style.display="none";e.target.nextElementSibling.style.display="block";}}
+                      />
+                      <span className="emoji-fb">{item.emoji}</span>
+                    </span>
+                    <span className="fun-name">{item.label}</span>
+                    <span className="fun-stars">
+                      {Array.from({length:item.stars}).map((_,s)=>(
+                        <span key={s} style={{color:"var(--accent)"}}>★</span>
+                      ))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>}
           </Card>
 
-          {mode==="off" && <Card icon={I.skills} iconName="skills" title={d.skillsTitle} sub="Ratings subject to change" full>
-            <div className="fun-grid">
-              {d.funItems.map((item,i)=>(
-                <div key={i} className="fun-item">
-                  <span className="fun-icon raised">
-                    <img
-                      src={`assets/${item.key}.png`}
-                      alt={item.label}
-                      onError={e=>{e.target.style.display="none";e.target.nextElementSibling.style.display="block";}}
-                    />
-                    <span className="emoji-fb">{item.emoji}</span>
-                  </span>
-                  <span className="fun-name">{item.label}</span>
-                  <span className="fun-stars">
-                    {Array.from({length:item.stars}).map((_,s)=>(
-                      <span key={s} style={{color:"var(--accent)"}}>★</span>
-                    ))}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>}
-
-          <Card icon={I.work} iconName="work" title={d.sectionTitles.work} sub={mode==="off"?"A short history":"Tap any role for full details"} full defaultOpen>
+          <Card icon={I.work} iconName="work" title={d.sectionTitles.work} sub={mode==="off"?"Things I want to do":"Tap any role for full details"} full defaultOpen>
             {mode==="off" ? (
               <div className="tl">
                 {d.timeline.map((t,i)=>(
                   <div key={i} className="tl-item">
                     <div className="tl-when">{t.when}</div>
                     <div><div className="tl-role">{t.role}</div><div className="tl-org">{t.org}</div><div className="tl-desc">{t.desc}</div></div>
+                    {t.img && (
+                      <div className="tl-img pressed">
+                        <img src={`assets/${t.img}`} alt={t.role}
+                          onError={e=>{e.target.style.display="none";e.target.nextElementSibling.style.display="flex";}} />
+                        <div className="tl-img-ph">add<br/>{t.img}</div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -498,11 +529,12 @@ function App() {
             )}
           </Card>
 
+          <div id="projects-section" style={{gridColumn:"1/-1"}}>
           <Card icon={I.proj} iconName="proj" title={d.sectionTitles.proj} sub={mode==="off"?"Tap any to open":"Full credentials list"} full>
             {mode==="off" ? (
               <div className="proj-grid">
                 {d.projects.map((p,i)=>(
-                  <a key={i} className="proj raised" href="#" target="_blank" rel="noreferrer">
+                  <a key={i} className="proj raised" href={p.href||"#"} target={p.href?"_self":"_blank"} rel="noreferrer">
                     <div className="pt">{p.t}</div><div className="pd">{p.d}</div>
                     <div className="pmeta">{p.meta} {I.arrow}</div>
                   </a>
@@ -513,12 +545,23 @@ function App() {
                 {d.certs.map((c,i)=>(
                   <div key={i} className="cert-item">
                     <span className="cert-ico raised"><Ico name={c.icon} w={24} h={24}>{I[c.icon]}</Ico></span>
-                    {c.name}
+                    <span>{c.name}{c.note && <em className="cert-note"> · {c.note}</em>}</span>
                   </div>
                 ))}
+                <button className="see-sidequests raised" onClick={()=>{
+                  flip("off");
+                  setTimeout(()=>{
+                    const el = document.getElementById("projects-section");
+                    if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+                  },450);
+                }}>
+                  <span>See my Side Quests</span>
+                  <span className="ssq-arrow">{I.arrow}</span>
+                </button>
               </div>
             )}
           </Card>
+          </div>
 
           <Card icon={I.mail} iconName="mail" title="Get in touch" sub="Always happy to chat" full defaultOpen>
             <div className="contact-grid">
@@ -530,7 +573,7 @@ function App() {
                 <span className="ci pressed"><Ico name="mail">{I.mail}</Ico></span>
                 <span>Email<small>steve@stevesite.ca</small></span>
               </a>
-              <a className="cbtn raised" href="https://stevesite.ca" target="_blank">
+              <a className="cbtn raised glow" href="https://stevesite.ca" target="_blank">
                 <span className="ci pressed"><Ico name="link">{I.link}</Ico></span>
                 <span>Website<small>stevesite.ca</small></span>
               </a>
