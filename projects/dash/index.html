@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DalaDash — A workstation for your data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@600;700;800;900&family=JetBrains+Mono:wght@500;600;700&family=Hammersmith+One&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:           #dfe5e8;
+    --bg-deeper:    #cfd6da;
+    --bg-flat:      #d4dbde;
+    --shadow-dark:  #b3bcc1;
+    --shadow-light: #ffffff;
+    --ink:          #2f3a44;
+    --ink-soft:     #6a7682;
+    --ink-faint:    #99a3ad;
+
+    --accent:       #0090ff;
+    --accent-soft:  #4eafff;
+    --accent-deep:  #006bbf;
+    --warm:         #ff9a3d;
+
+    --radius:       20px;
+    --radius-lg:    32px;
+
+    --dash-bg:      #232629;
+    --dash-card:    #2a2d31;
+    --dash-raise:   #2f3337;
+    --dash-blue:    #0090FF;
+    --dash-white:   #FFFFFF;
+    --dash-steel:   #7D858D;
+    --dash-dim:     #3a3f45;
+    --dash-green:   #00C896;
+    --dash-red:     #FF4444;
+    --dash-so-sm:   3px 3px 6px #1a1c1e, -2px -2px 5px #2e3236;
+    --dash-si-sm:   inset 2px 2px 4px #1a1c1e, inset -2px -2px 4px #2e3236;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 32px 20px 80px;
+    line-height: 1.55;
+    background:
+      radial-gradient(ellipse at 12% 8%,  #ecf0f3 0%, transparent 42%),
+      radial-gradient(ellipse at 88% 92%, #cbd2d7 0%, transparent 48%),
+      var(--bg);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1, h2, h3, .sora { font-family: 'Sora', sans-serif; letter-spacing: -0.01em; }
+
+  /* BACK */
+  .back {
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink-soft);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 12.5px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 12px 20px 12px 16px;
+    background: var(--bg); border-radius: 999px;
+    margin-bottom: 32px;
+    box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    transition: all 0.18s ease;
+  }
+  .back:hover { color: var(--accent); transform: translateX(-2px); }
+  .back:active { box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light); transform: translateX(0); }
+  .back .arrow {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--bg);
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    font-size: 14px; color: var(--accent);
+  }
+
+  /* HERO — bare on background, no card */
+  .hero-bare {
+    text-align: center;
+    padding: 12px 8px 36px;
+  }
+  .hero-bare h1 {
+    font-size: clamp(44px, 6.4vw, 76px);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+  }
+  .hero-bare h1 .grad {
+    background: linear-gradient(95deg, var(--accent), var(--accent-deep));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-version {
+    display: inline-block;
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.18em;
+    color: var(--ink-faint); text-transform: uppercase;
+  }
+
+  /* INFLOW PIPES — two link tiles flowing into the mock */
+  .inflow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 8px auto 0;
+    max-width: 760px;
+    position: relative;
+    padding-bottom: 60px;   /* room for the SVG paths */
+  }
+  .pipe-link {
+    background: var(--bg); border-radius: var(--radius);
+    padding: 18px 22px;
+    box-shadow: 5px 5px 14px var(--shadow-dark), -5px -5px 14px var(--shadow-light);
+    text-decoration: none; color: var(--ink);
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.2s ease;
+    position: relative; z-index: 3;
+  }
+  .pipe-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 7px 7px 18px var(--shadow-dark), -7px -7px 18px var(--shadow-light);
+  }
+  .pipe-link:hover .pipe-name { color: var(--accent); }
+  .pipe-ico {
+    width: 42px; height: 42px; flex: none;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    background: var(--bg);
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+    color: var(--accent); font-size: 20px;
+  }
+  .pipe-text { flex: 1; }
+  .pipe-name {
+    font-family: 'Sora', sans-serif; font-weight: 800;
+    font-size: 15px; transition: color 0.2s;
+  }
+  .pipe-tag {
+    font-size: 11.5px; color: var(--ink-soft);
+    letter-spacing: 0.06em;
+  }
+  .pipe-arrow {
+    color: var(--ink-faint);
+    font-size: 18px;
+  }
+
+  /* SVG that draws the flow lines */
+  .flow-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .flow-path {
+    fill: none;
+    stroke: var(--accent-soft);
+    stroke-width: 1.6;
+    stroke-dasharray: 4 6;
+    opacity: 0.5;
+    filter: drop-shadow(0 0 4px rgba(0, 144, 255, 0.35));
+  }
+  /* the traveling glow dot */
+  .flow-dot {
+    fill: var(--accent);
+    filter: drop-shadow(0 0 6px var(--accent));
+  }
+
+  /* MOCK FRAME — softer, less card */
+  .mock-section {
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .mock-frame {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    /* heavier outer ring than other panels — this one is the centerpiece */
+    box-shadow: 14px 14px 36px var(--shadow-dark), -14px -14px 36px var(--shadow-light);
+    position: relative;
+  }
+
+  .mock-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .mock-banner-text {
+    flex: 1; min-width: 200px;
+  }
+  .mock-banner-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 4px;
+  }
+  .mock-banner-blurb {
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.55;
+    max-width: 60ch;
+  }
+  /* the toggle */
+  .view-toggle {
+    background: var(--bg);
+    border-radius: 999px;
+    padding: 4px;
+    display: inline-flex;
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+    flex: none;
+  }
+  .vt-btn {
+    border: none; background: transparent;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 11.5px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 9px 16px;
+    border-radius: 999px;
+    color: var(--ink-soft); cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .vt-btn.on {
+    background: var(--accent);
+    color: white;
+    box-shadow: 3px 3px 8px rgba(0, 144, 255, 0.35);
+  }
+
+  /* the static "real screen" view (toggle-controlled) */
+  .real-screen {
+    display: none;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    background: var(--bg-flat);
+    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+    overflow: hidden;
+  }
+  .real-screen.on { display: grid; place-items: center; }
+  .real-screen img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .real-screen .ph {
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; text-align: center;
+    padding: 24px; line-height: 1.6;
+  }
+  .real-screen .ph .big { font-size: 36px; opacity: 0.4; margin-bottom: 8px; }
+  .dash.hidden { display: none; }
+
+  /* ── THE DASH MOCK ITSELF ── (same as before) */
+  .dash {
+    background: var(--dash-bg);
+    color: var(--dash-white);
+    font-family: 'Hammersmith One', sans-serif;
+    border-radius: 14px;
+    overflow: hidden;
+    height: 580px;
+    display: flex; flex-direction: column;
+    box-shadow: inset 4px 4px 12px #1a1c1e, inset -3px -3px 8px #2e3236;
+    position: relative;
+  }
+  .dash * { box-sizing: border-box; }
+
+  .dash-top {
+    display: flex; align-items: center; gap: 12px;
+    height: 44px; padding: 0 14px;
+    background: var(--dash-card);
+    box-shadow: 0 3px 14px #1a1c1e;
+    z-index: 5; flex-shrink: 0;
+  }
+  .dash-logo {
+    font-size: 0.95rem; letter-spacing: 0.16em;
+    color: var(--dash-blue); flex-shrink: 0;
+  }
+  .dash-tabs { display: flex; gap: 4px; }
+  .dash-tab {
+    background: var(--dash-bg); border: none; border-radius: 7px;
+    box-shadow: var(--dash-so-sm);
+    color: var(--dash-steel); cursor: pointer;
+    font-family: 'Hammersmith One', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+    padding: 7px 14px;
+    display: inline-flex; align-items: center; gap: 7px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .dash-tab .ic { font-size: 0.78rem; }
+  .dash-tab:hover { color: var(--dash-white); }
+  .dash-tab.active { box-shadow: var(--dash-si-sm); color: var(--dash-blue); }
+
+  .dash-spacer { flex: 1; }
+  .dash-metric {
+    background: var(--dash-bg); border-radius: 7px;
+    box-shadow: var(--dash-si-sm);
+    padding: 4px 12px; display: flex; flex-direction: column; gap: 1px;
+    min-width: 72px;
+  }
+  .dash-metric .lbl {
+    font-size: 0.5rem; letter-spacing: 0.12em;
+    color: var(--dash-steel); text-transform: uppercase;
+  }
+  .dash-metric .val { font-size: 0.85rem; font-weight: 700; }
+  .dash-metric .val.pos { color: var(--dash-green); }
+  .dash-metric .val.neg { color: var(--dash-red); }
+  .dash-metric .val.neu { color: var(--dash-white); }
+
+  .dash-tbtn {
+    background: var(--dash-bg); border: none; border-radius: 7px;
+    box-shadow: var(--dash-so-sm);
+    color: var(--dash-steel); cursor: pointer;
+    font-family: 'Hammersmith One', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.12em;
+    padding: 6px 11px;
+    display: inline-flex; align-items: center; gap: 6px;
+    text-transform: uppercase;
+  }
+  .dash-tbtn:hover { color: var(--dash-blue); }
+  .dash-tbtn:active { box-shadow: var(--dash-si-sm); }
+  .dash-tbtn .ic { font-size: 0.75rem; }
+
+  .dash-work { flex: 1; display: flex; min-height: 0; }
+  .dash-side {
+    width: 188px; flex-shrink: 0;
+    background: var(--dash-card);
+    border-right: 1px solid #1e2124;
+    padding: 10px 12px;
+    overflow-y: auto;
+  }
+  .dash-side::-webkit-scrollbar { width: 6px; }
+  .dash-side::-webkit-scrollbar-thumb { background: #3a3f45; border-radius: 3px; }
+
+  .dash-sec { margin-bottom: 12px; }
+  .dash-sec-head {
+    font-size: 0.5rem; letter-spacing: 0.16em;
+    color: var(--dash-steel); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .dash-fld-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+  .dash-fld-row .name { flex: 1; font-size: 0.72rem; color: var(--dash-steel); cursor: pointer; }
+  .dash-fld-row.on .name { color: var(--dash-white); }
+  .dash-toggle {
+    width: 26px; height: 14px;
+    border-radius: 8px; position: relative;
+    background: var(--dash-bg);
+    box-shadow: var(--dash-si-sm);
+    cursor: pointer;
+  }
+  .dash-toggle::after {
+    content: ""; position: absolute;
+    top: 2px; left: 2px; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--dash-steel);
+    box-shadow: var(--dash-so-sm);
+    transition: left 0.18s, background 0.18s;
+  }
+  .dash-fld-row.on .dash-toggle::after { left: 14px; background: var(--dash-blue); }
+
+  .dash-search {
+    width: 100%; padding: 7px 10px;
+    background: var(--dash-bg); border: none; border-radius: 6px;
+    color: var(--dash-white);
+    font-family: 'Hammersmith One', sans-serif;
+    font-size: 0.72rem;
+    box-shadow: var(--dash-si-sm);
+    outline: none;
+  }
+  .dash-search::placeholder { color: var(--dash-steel); }
+
+  .dash-amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .dash-amt {
+    background: var(--dash-bg); border: none; border-radius: 6px;
+    box-shadow: var(--dash-so-sm);
+    color: var(--dash-steel);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 600;
+    padding: 8px 0; cursor: pointer;
+    transition: color 0.15s;
+  }
+  .dash-amt:hover { color: var(--dash-white); }
+  .dash-amt.on { box-shadow: var(--dash-si-sm); color: var(--dash-blue); }
+
+  .dash-main {
+    flex: 1; padding: 14px;
+    overflow: auto; position: relative;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .dash-main::-webkit-scrollbar { width: 6px; height: 6px; }
+  .dash-main::-webkit-scrollbar-thumb { background: #3a3f45; border-radius: 3px; }
+
+  .dash-charts {
+    background: var(--dash-card);
+    border-radius: 9px;
+    padding: 12px;
+    height: 200px;
+    display: flex; gap: 14px;
+  }
+  .dash-chart-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .dash-chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .dash-chart-title { font-size: 0.7rem; letter-spacing: 0.14em; color: var(--dash-steel); text-transform: uppercase; }
+  .dash-chart-select {
+    background: var(--dash-bg); border: none; border-radius: 6px;
+    color: var(--dash-white);
+    font-family: 'Hammersmith One', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.06em;
+    padding: 4px 8px;
+    box-shadow: var(--dash-so-sm);
+    cursor: pointer; text-transform: uppercase;
+  }
+  .dash-chart-body { flex: 1; position: relative; min-height: 0; }
+
+  .dash-cats { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dash-cat {
+    background: var(--dash-bg); border: none; border-radius: 7px;
+    box-shadow: var(--dash-so-sm);
+    color: var(--dash-steel);
+    font-family: 'Hammersmith One', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.06em;
+    padding: 6px 12px; cursor: pointer; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: color 0.15s;
+  }
+  .dash-cat:hover { color: var(--dash-white); }
+  .dash-cat.on { box-shadow: var(--dash-si-sm); color: var(--dash-blue); }
+  .dash-cat .swatch { width: 8px; height: 8px; border-radius: 50%; background: var(--dash-steel); }
+  .dash-cat.on .swatch { background: var(--dash-blue); }
+
+  .dash-tablewrap {
+    background: var(--dash-card);
+    border-radius: 9px;
+    overflow: hidden;
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+  }
+  .dash-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+  .dash-table thead { background: var(--dash-dim); position: sticky; top: 0; z-index: 2; }
+  .dash-table th {
+    text-align: left; padding: 8px 10px;
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    color: var(--dash-steel); text-transform: uppercase;
+    font-weight: normal; cursor: pointer;
+  }
+  .dash-table tbody { display: block; }
+  .dash-table thead, .dash-table tbody tr { display: table; width: 100%; table-layout: fixed; }
+  .dash-table tbody tr { border-bottom: 1px solid #1e2124; }
+  .dash-table tbody tr:hover { background: rgba(0, 144, 255, 0.04); }
+  .dash-table td { padding: 7px 10px; color: var(--dash-white); font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; }
+  .dash-table td.amt { text-align: right; }
+  .dash-table td.amt.neg { color: var(--dash-red); }
+  .dash-table td.amt.pos { color: var(--dash-green); }
+  .dash-table td.cat { color: var(--dash-blue); }
+  .dash-table td.sub { color: var(--dash-steel); }
+
+  /* PILLARS — different depth from other panels */
+  .pillars {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-bottom: 36px;
+  }
+  @media (max-width: 820px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    background: var(--bg); border-radius: var(--radius);
+    padding: 24px 22px;
+    /* deeper inset look — pressed into the background */
+    box-shadow: inset 5px 5px 14px var(--shadow-dark), inset -5px -5px 14px var(--shadow-light);
+    transition: all 0.25s ease;
+    cursor: default;
+  }
+  .pillar:hover {
+    box-shadow: inset 8px 8px 18px var(--shadow-dark), inset -8px -8px 18px var(--shadow-light);
+  }
+  .pillar-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.16em;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .pillar-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px; font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .pillar-body { color: var(--ink-soft); font-size: 13.5px; }
+
+  /* FEATURES CAROUSEL CARD — one card, cycling content */
+  .feat-card {
+    background: var(--bg); border-radius: var(--radius-lg);
+    padding: 32px 36px;
+    margin-bottom: 36px;
+    /* shallower outer shadow than mock-frame, distinct from pillars */
+    box-shadow: 7px 7px 20px var(--shadow-dark), -7px -7px 20px var(--shadow-light);
+  }
+  .feat-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .feat-head h2 {
+    font-size: clamp(22px, 3vw, 28px);
+    font-weight: 800;
+  }
+  .feat-cycle {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .feat-cycle button {
+    border: none; background: var(--bg);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft); cursor: pointer;
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    transition: all 0.2s ease;
+  }
+  .feat-cycle button:hover { color: var(--accent); }
+  .feat-cycle button.on {
+    box-shadow: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light);
+    color: var(--accent);
+  }
+
+  .feat-body {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 32px;
+    align-items: center;
+  }
+  @media (max-width: 820px) { .feat-body { grid-template-columns: 1fr; } }
+
+  .feat-slide { display: none; }
+  .feat-slide.on { display: contents; animation: featFade 0.4s ease forwards; }
+  @keyframes featFade { from { opacity: 0; } to { opacity: 1; } }
+
+  .feat-text-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .feat-text h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(20px, 2.4vw, 24px);
+    font-weight: 800; margin-bottom: 10px;
+  }
+  .feat-text p { color: var(--ink-soft); font-size: 14px; line-height: 1.65; }
+  .feat-img {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius);
+    background: var(--bg-flat);
+    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+    overflow: hidden;
+    display: grid; place-items: center;
+  }
+  .feat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .feat-img .ph {
+    text-align: center; padding: 16px;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; line-height: 1.6;
+  }
+  .feat-img .ph .big { font-size: 28px; opacity: 0.4; margin-bottom: 4px; }
+
+  /* TAGGING SECTION — bare on background, icon stays raised */
+  .tagging {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: center;
+    padding: 28px 8px;
+    margin-bottom: 36px;
+  }
+  @media (max-width: 720px) { .tagging { grid-template-columns: 1fr; } }
+
+  .tag-cycle {
+    aspect-ratio: 1 / 1;
+    max-width: 260px;
+    display: grid; place-items: center;
+    position: relative;
+  }
+  .tag-frame {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    transition: opacity 0.35s ease;
+  }
+  .tag-icon {
+    width: 90px; height: 90px;
+    border-radius: 22px;
+    background: var(--bg);
+    box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    display: grid; place-items: center;
+    font-size: 42px;
+    color: var(--accent);
+  }
+  .tag-name {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 16px;
+    color: var(--ink);
+  }
+  .tag-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .tag-text h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(20px, 2.4vw, 24px);
+    font-weight: 800; margin-bottom: 12px;
+  }
+  .tag-text p {
+    color: var(--ink-soft); font-size: 14px; line-height: 1.7;
+    max-width: 56ch;
+  }
+  .tag-text p + p { margin-top: 10px; }
+  .tag-text em {
+    color: var(--accent-deep); font-style: normal;
+    background: rgba(0, 144, 255, 0.08);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* BOTTOM */
+  .bottom {
+    background: var(--bg); border-radius: var(--radius-lg);
+    padding: 44px 36px;
+    /* this panel uses outer shadow on one side + inner on the other for variation */
+    box-shadow:
+      12px 12px 28px var(--shadow-dark),
+      inset -3px -3px 10px var(--shadow-light);
+    position: relative; overflow: hidden;
+  }
+  .bottom::before {
+    content: ""; position: absolute; inset: auto -10% -50% auto;
+    width: 50%; height: 80%; pointer-events: none;
+    background: radial-gradient(circle, var(--warm) 0%, transparent 60%);
+    opacity: 0.12; filter: blur(50px);
+  }
+  .bottom h2 {
+    font-size: clamp(24px, 3.4vw, 30px);
+    font-weight: 800; margin-bottom: 12px; position: relative;
+  }
+  .bottom .blurb {
+    color: var(--ink-soft); font-size: 14.5px;
+    max-width: 62ch; margin-bottom: 28px; position: relative;
+  }
+  .bottom-extras {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; position: relative;
+  }
+  @media (max-width: 720px) { .bottom-extras { grid-template-columns: 1fr; } }
+  .extra {
+    background: var(--bg); border-radius: var(--radius);
+    padding: 24px 22px;
+    box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .extra-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .extra-title { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 800; }
+  .extra-body { color: var(--ink-soft); font-size: 13.5px; }
+
+  .det-btn {
+    border: none; text-decoration: none;
+    background: var(--bg); border-radius: 14px;
+    padding: 13px 20px;
+    box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 13px;
+    color: var(--ink); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 9px;
+    transition: all 0.2s ease;
+    align-self: flex-start; margin-top: 4px;
+  }
+  .det-btn:hover { transform: translateY(-2px); color: var(--accent); }
+  .det-btn:active { box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light); }
+  .det-btn[aria-disabled="true"] { color: var(--ink-faint); cursor: not-allowed; }
+  .det-btn[aria-disabled="true"]:hover { transform: none; color: var(--ink-faint); }
+  .det-btn .ic { font-size: 15px; color: var(--accent); }
+
+  /* MODAL */
+  .modal-back {
+    position: fixed; inset: 0;
+    background: rgba(20, 30, 40, 0.45);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 50; padding: 24px;
+  }
+  .modal-back.open { display: flex; animation: modalIn 0.25s ease forwards; }
+  @keyframes modalIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--bg); border-radius: var(--radius-lg);
+    padding: 36px 32px 28px;
+    max-width: 580px; width: 100%;
+    box-shadow: 12px 12px 32px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    border: none; border-radius: 50%;
+    background: var(--bg);
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    cursor: pointer; font-size: 16px;
+    color: var(--ink-soft);
+  }
+  .modal-close:hover { color: var(--accent); }
+  .modal-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .modal h3 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+  .modal .pre-text { color: var(--ink-soft); font-size: 14px; margin-bottom: 20px; }
+  .prompt-box {
+    background: var(--bg-flat); border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px; color: var(--ink);
+    line-height: 1.65; margin-bottom: 16px;
+  }
+  .prompt-box .speak { display: block; color: var(--accent-deep); font-style: italic; }
+  .modal .footnote { font-size: 12px; color: var(--ink-faint); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../../" aria-label="Back to main">
+    <span class="arrow">←</span><span>Back</span>
+  </a>
+
+  <!-- HERO — bare on background -->
+  <section class="hero-bare">
+    <h1><span class="grad">DalaDash</span></h1>
+    <span class="hero-version">v 0.9 · desktop preview</span>
+  </section>
+
+  <!-- INFLOW PIPES — links to PDF2Sheets + Trackers with SVG flow into mock below -->
+  <section class="inflow">
+    <a class="pipe-link" href="../pdf2sheets/" id="pipeA">
+      <span class="pipe-ico">📄</span>
+      <span class="pipe-text">
+        <span class="pipe-name">PDF2Sheets</span>
+        <span class="pipe-tag">bank statements → xlsx</span>
+      </span>
+      <span class="pipe-arrow">→</span>
+    </a>
+    <a class="pipe-link" href="../trackers/" id="pipeB">
+      <span class="pipe-ico">📱</span>
+      <span class="pipe-text">
+        <span class="pipe-name">Trackers</span>
+        <span class="pipe-tag">phone apps → emailed xlsx</span>
+      </span>
+      <span class="pipe-arrow">→</span>
+    </a>
+    <svg class="flow-svg" id="flowSvg" preserveAspectRatio="none"></svg>
+  </section>
+
+  <!-- MOCK -->
+  <section class="mock-section">
+    <div class="mock-frame">
+
+      <div class="mock-banner">
+        <div class="mock-banner-text">
+          <div class="mock-banner-eyebrow">AI-GENERATED DEMO</div>
+          <div class="mock-banner-blurb">A playable, AI-built sketch of the dash with fake data. Click anything, switch chart types, toggle filters. Real interface, made-up numbers. Flip the toggle to see a screenshot of the actual app.</div>
+        </div>
+        <div class="view-toggle">
+          <button class="vt-btn on" id="vtDemo" onclick="setView('demo')">AI Demo</button>
+          <button class="vt-btn" id="vtReal" onclick="setView('real')">Real Screen</button>
+        </div>
+      </div>
+
+      <!-- AI demo (the full mock from before) -->
+      <div class="dash" id="dashMock">
+        <div class="dash-top">
+          <span class="dash-logo">DALADASH</span>
+          <div class="dash-tabs">
+            <button class="dash-tab active" data-cycle="tab-data">
+              <span class="ic" data-cycle-ic>📊</span>
+              <span data-cycle-tx>DATA</span>
+            </button>
+            <button class="dash-tab" data-cycle="tab-compare">
+              <span class="ic" data-cycle-ic>⚖</span>
+              <span data-cycle-tx>COMPARE</span>
+            </button>
+          </div>
+          <div class="dash-spacer"></div>
+          <div class="dash-metric"><span class="lbl">Income</span><span class="val pos">$4,820</span></div>
+          <div class="dash-metric"><span class="lbl">Spent</span><span class="val neg">$3,194</span></div>
+          <div class="dash-metric"><span class="lbl">Net</span><span class="val neu">+$1,626</span></div>
+          <button class="dash-tbtn" data-cycle="btn-metrics"><span class="ic" data-cycle-ic>📐</span><span data-cycle-tx>METRICS</span></button>
+          <button class="dash-tbtn" data-cycle="btn-colors"><span class="ic" data-cycle-ic>🎨</span><span data-cycle-tx>COLORS</span></button>
+          <button class="dash-tbtn" data-cycle="btn-folder"><span class="ic" data-cycle-ic>＋</span><span data-cycle-tx>FOLDER</span></button>
+          <button class="dash-tbtn" data-cycle="btn-refresh"><span class="ic" data-cycle-ic>↻</span><span data-cycle-tx>REFRESH</span></button>
+        </div>
+        <div class="dash-work">
+          <div class="dash-side">
+            <div class="dash-sec">
+              <div class="dash-sec-head">Folders</div>
+              <div class="dash-fld-row on" onclick="toggleFold(this)"><span class="name">Current</span><span class="dash-toggle"></span></div>
+              <div class="dash-fld-row on" onclick="toggleFold(this)"><span class="name">Statements</span><span class="dash-toggle"></span></div>
+              <div class="dash-fld-row" onclick="toggleFold(this)"><span class="name">Taxes</span><span class="dash-toggle"></span></div>
+              <div class="dash-fld-row" onclick="toggleFold(this)"><span class="name">Savings</span><span class="dash-toggle"></span></div>
+              <div class="dash-fld-row" onclick="toggleFold(this)"><span class="name">Debts</span><span class="dash-toggle"></span></div>
+            </div>
+            <div class="dash-sec">
+              <div class="dash-sec-head">Search</div>
+              <input class="dash-search" id="mockSearch" placeholder="Search all fields..." oninput="renderTable()"/>
+            </div>
+            <div class="dash-sec">
+              <div class="dash-sec-head">Date</div>
+              <input class="dash-search" placeholder="YYYY or YYYY-MM-DD"/>
+            </div>
+            <div class="dash-sec">
+              <div class="dash-sec-head">Amount</div>
+              <div class="dash-amt-grid">
+                <button class="dash-amt" data-op="under" data-v="100" onclick="toggleAmt(this)">&lt;100</button>
+                <button class="dash-amt" data-op="under" data-v="500" onclick="toggleAmt(this)">&lt;500</button>
+                <button class="dash-amt" data-op="under" data-v="1000" onclick="toggleAmt(this)">&lt;1k</button>
+                <button class="dash-amt" data-op="above" data-v="100" onclick="toggleAmt(this)">&gt;100</button>
+                <button class="dash-amt" data-op="above" data-v="500" onclick="toggleAmt(this)">&gt;500</button>
+                <button class="dash-amt" data-op="above" data-v="1000" onclick="toggleAmt(this)">&gt;1k</button>
+              </div>
+            </div>
+          </div>
+          <div class="dash-main">
+            <div class="dash-charts">
+              <div class="dash-chart-wrap">
+                <div class="dash-chart-head">
+                  <span class="dash-chart-title">Visualize</span>
+                  <select class="dash-chart-select" id="chartPick" onchange="drawChart()">
+                    <option value="donut">Spend by Category</option>
+                    <option value="trend">Monthly Trend</option>
+                    <option value="incexp">Income vs Expenses</option>
+                  </select>
+                </div>
+                <div class="dash-chart-body"><canvas id="mockChart"></canvas></div>
+              </div>
+            </div>
+            <div class="dash-cats" id="mockCats"></div>
+            <div class="dash-tablewrap">
+              <table class="dash-table">
+                <thead>
+                  <tr>
+                    <th style="width:18%">Date</th>
+                    <th style="width:30%">Description</th>
+                    <th style="width:18%">Category</th>
+                    <th style="width:18%">Sub</th>
+                    <th style="width:16%; text-align:right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="mockRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-screen placeholder (toggle-controlled) -->
+      <div class="real-screen" id="realScreen">
+        <img src="images/real-screen.png" alt="Real DalaDash screenshot"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+        <div class="ph" style="display:none;">
+          <div class="big">🖥</div>
+          images/real-screen.png
+          <br><small>(drop a screenshot of the real app here)</small>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- THREE PILLARS — pressed-in look, distinct from other panels -->
+  <section class="pillars">
+    <div class="pillar">
+      <div class="pillar-num">PILLAR 01</div>
+      <div class="pillar-title">Local</div>
+      <div class="pillar-body">Runs entirely on your machine. Spreadsheets stay on disk. Nothing uploads, nothing logs in.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">PILLAR 02</div>
+      <div class="pillar-title">Customizable</div>
+      <div class="pillar-body">Folder structure, column mappings, categories, colours, charts — every piece is configurable. Edit the config, the app picks it up.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">PILLAR 03</div>
+      <div class="pillar-title">Expandable</div>
+      <div class="pillar-body">Add new folder types, new chart types, new sub-categories any time. The architecture doesn't care how many you add.</div>
+    </div>
+  </section>
+
+  <!-- FEATURES CAROUSEL CARD -->
+  <section class="feat-card">
+    <div class="feat-head">
+      <h2>Everything in one place.</h2>
+      <div class="feat-cycle">
+        <button class="on" data-slide="charts" onclick="setSlide('charts')">Charts</button>
+        <button data-slide="compare" onclick="setSlide('compare')">Compare</button>
+        <button data-slide="search" onclick="setSlide('search')">Search & Sort</button>
+        <button data-slide="folders" onclick="setSlide('folders')">Local Folders</button>
+      </div>
+    </div>
+
+    <div class="feat-body">
+      <div class="feat-slide on" id="slide-charts">
+        <div class="feat-text">
+          <div class="feat-text-eyebrow">CHARTS</div>
+          <h3>Same data, five ways to look at it.</h3>
+          <p>Donut for the breakdown. Line for the trend. Bars for the head-to-head. Stacked for the yearly view. Change the dropdown, the chart redraws. Chart.js ships with the .exe so it runs offline.</p>
+        </div>
+        <div class="feat-img">
+          <img src="images/feat-charts.png" alt="Charts"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <div class="ph" style="display:none;">
+            <div class="big">📈</div>images/feat-charts.png
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-slide" id="slide-compare">
+        <div class="feat-text">
+          <div class="feat-text-eyebrow">COMPARE</div>
+          <h3>Two datasets, side-by-side.</h3>
+          <p>Switch to Compare and the workspace splits. Different folders, different date ranges, this-month-vs-last-month — set both sides independently, see them at once. Useful for tax season, end-of-year reviews, or confirming a gut feeling about a trend.</p>
+        </div>
+        <div class="feat-img">
+          <img src="images/feat-compare.png" alt="Compare"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <div class="ph" style="display:none;">
+            <div class="big">⚖</div>images/feat-compare.png
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-slide" id="slide-search">
+        <div class="feat-text">
+          <div class="feat-text-eyebrow">SEARCH & SORT</div>
+          <h3>Stack filters until the picture is clear.</h3>
+          <p>Free-text search, category and sub-category toggles, date range, amount thresholds — all compound. Table updates as you type. Headers sort. Nothing is modal, nothing needs saving.</p>
+        </div>
+        <div class="feat-img">
+          <img src="images/feat-search.png" alt="Search & Sort"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <div class="ph" style="display:none;">
+            <div class="big">🔍</div>images/feat-search.png
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-slide" id="slide-folders">
+        <div class="feat-text">
+          <div class="feat-text-eyebrow">LOCAL FOLDERS</div>
+          <h3>Point it at folders. That's the setup.</h3>
+          <p>Each folder has a type — flat, yearly (year-then-month sub-folders), or one-offs — and a column mapping. Add as many folder types as you want. Everything stays on your machine.</p>
+        </div>
+        <div class="feat-img">
+          <img src="images/feat-folders.png" alt="Local Folders"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <div class="ph" style="display:none;">
+            <div class="big">📁</div>images/feat-folders.png
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAGGING / SUB-CATEGORY SECTION -->
+  <section class="tagging">
+    <div class="tag-cycle">
+      <div class="tag-frame" id="tagFrame">
+        <div class="tag-icon" id="tagIcon">🛒</div>
+        <div class="tag-name" id="tagName">Groceries</div>
+        <div class="tag-sub" id="tagSub">→ Supermarket</div>
+      </div>
+    </div>
+    <div class="tag-text">
+      <h3>Main → sub. Tag as deep as the data deserves.</h3>
+      <p>Every row gets a main category and a sub. Add a new sub any time — even mid-way through a PDF2Sheets import — without re-categorizing what came before. <em>No rework.</em></p>
+      <p>Branches go as deep as you need. Decide later that "Eating Out" should split into "Coffee" / "Lunch" / "Date Night" / "Takeout"? Add them. Old rows keep their old tag, new rows get the finer ones. Reports just work.</p>
+    </div>
+  </section>
+
+  <!-- BOTTOM -->
+  <section class="bottom">
+    <h2>Built to be changed.</h2>
+    <p class="blurb">DalaDash doesn't care what categories you use, what columns your spreadsheets have, or how many folders you stack on top of it. Tell it once in the config; it remembers.</p>
+
+    <div class="bottom-extras">
+      <div class="extra">
+        <span class="extra-eyebrow">TIP</span>
+        <span class="extra-title">Repurpose it with an AI.</span>
+        <span class="extra-body">Hand the source files to Claude or ChatGPT with what you want changed — folders, columns, categories, the chart types you care about. Ask for an updated daladash.py and daladash.html back.</span>
+        <button class="det-btn" onclick="openModal()">
+          <span class="ic">💬</span> See a prompt example
+        </button>
+      </div>
+      <div class="extra">
+        <span class="extra-eyebrow">DOWNLOAD</span>
+        <span class="extra-title">Get the stranger-friendly build.</span>
+        <span class="extra-body">A clean version with placeholder folders, sample data, and a setup readme. Drop your real spreadsheets in and it just works. Or grab the source and build the .exe yourself with the included .bat.</span>
+        <a class="det-btn" href="#" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="ic">⬇</span> Download zip (coming soon)
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- AI PROMPT MODAL -->
+<div class="modal-back" id="modalBack" onclick="if(event.target===this) closeModal()">
+  <div class="modal" role="dialog">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    <div class="modal-eyebrow">AI PROMPT EXAMPLE</div>
+    <h3>Something you can paste straight in.</h3>
+    <p class="pre-text">DalaDash is most of the work done. Customizing it is mostly just changing words and column letters. Ask like this:</p>
+    <div class="prompt-box">
+      <span class="speak">"I've attached daladash.py and daladash.html. I want to use this to track my freelance business, not personal finance. Change the folders to: Invoices, Expenses, Mileage, Client Notes. The xlsx columns are date / client / project / category / hours / amount. Use a warm orange theme instead of the blue. Drop the 'Tax Files' section in the sidebar — I don't need it. Send me back both files updated."</span>
+    </div>
+    <p class="footnote">The clearer you are about column letters and folder paths, the cleaner the result. The Python side rarely needs more than the DEFAULT_CONFIG block changed.</p>
+  </div>
+</div>
+
+<script>
+  /* ──────────────────────────────────────────────────────
+     FAKE DATA + STATE for the mock
+     ────────────────────────────────────────────────────── */
+  const CATS = [
+    { name: 'Groceries',    subs: ['Supermarket','Farmers Market','Convenience'] },
+    { name: 'Transport',    subs: ['Fuel','Transit','Parking','Maintenance']    },
+    { name: 'Bills',        subs: ['Hydro','Internet','Phone','Insurance']       },
+    { name: 'Eating Out',   subs: ['Coffee','Lunch','Dinner','Takeout']          },
+    { name: 'Entertainment',subs: ['Streaming','Games','Events']                 },
+    { name: 'Home',         subs: ['Hardware','Furniture','Cleaning']            },
+    { name: 'Health',       subs: ['Pharmacy','Dental','Gym']                    },
+    { name: 'Income',       subs: ['Salary','Refund','Other']                    },
+  ];
+  const DESC = {
+    'Groceries':     ['Loblaws','Sobeys','Foodland','No Frills','Costco run','Corner store'],
+    'Transport':     ['Petro-Can','Esso','GO Transit','Parking lot','Oil change','Brake pads'],
+    'Bills':         ['Hydro Inc.','Bell','Rogers','Insurance Co.','City water'],
+    'Eating Out':    ['Tim Hortons','Starbucks','Local pub','Pizza place','Sushi spot','Coffee shop'],
+    'Entertainment': ['Netflix','Spotify','Steam','Movie tickets','Concert','Game'],
+    'Home':          ['Home Depot','IKEA','Cleaning supplies','Light bulbs'],
+    'Health':        ['Pharmacy','Dental visit','Gym monthly','Vitamins'],
+    'Income':        ['Payroll','Refund - utility','Sold something','Side gig'],
+  };
+  const CAT_COLORS = ['#0090FF','#00C896','#FF9A3D','#E160B5','#7D858D','#FFD93D','#8BD3FF','#5C5CFF'];
+
+  function seed(n){ let s = n; return ()=> { s = (s*9301+49297) % 233280; return s/233280; }; }
+  const rnd = seed(42);
+
+  function makeFakeRows() {
+    const rows = [];
+    const today = new Date(2026, 5, 20);
+    for (let i = 0; i < 120; i++) {
+      const daysBack = Math.floor(rnd() * 180);
+      const d = new Date(today.getTime() - daysBack*86400000);
+      const date = d.toISOString().slice(0,10);
+      const isIncome = rnd() < 0.08;
+      const cat = isIncome ? CATS[7] : CATS[Math.floor(rnd() * 7)];
+      const sub = cat.subs[Math.floor(rnd() * cat.subs.length)];
+      const descs = DESC[cat.name];
+      const desc = descs[Math.floor(rnd() * descs.length)];
+      let amt;
+      if (isIncome)                amt =  500 + Math.floor(rnd() * 3000);
+      else if (cat.name==='Bills') amt = -50 - Math.floor(rnd() * 220);
+      else if (cat.name==='Home')  amt = -20 - Math.floor(rnd() * 280);
+      else                         amt = -3 - Math.floor(rnd() * 70);
+      rows.push({date, desc, cat: cat.name, sub, amt});
+    }
+    return rows.sort((a,b)=> b.date.localeCompare(a.date));
+  }
+  const ALL_ROWS = makeFakeRows();
+  const state = { cats: new Set(), amts: [] };
+
+  function renderCats() {
+    const el = document.getElementById('mockCats');
+    el.innerHTML = '';
+    CATS.slice(0,7).forEach((c, i) => {
+      const b = document.createElement('button');
+      b.className = 'dash-cat' + (state.cats.has(c.name) ? ' on' : '');
+      b.innerHTML = `<span class="swatch" style="background:${CAT_COLORS[i]}"></span>${c.name}`;
+      b.onclick = () => {
+        if (state.cats.has(c.name)) state.cats.delete(c.name); else state.cats.add(c.name);
+        renderCats(); renderTable(); drawChart();
+      };
+      el.appendChild(b);
+    });
+  }
+  function filtered() {
+    let rows = ALL_ROWS;
+    if (state.cats.size) rows = rows.filter(r => state.cats.has(r.cat));
+    if (state.amts.length) {
+      rows = rows.filter(r => {
+        const a = Math.abs(r.amt);
+        return state.amts.every(f => f.op==='under' ? a < f.v : a > f.v);
+      });
+    }
+    const q = (document.getElementById('mockSearch')||{}).value || '';
+    if (q.trim()) {
+      const qq = q.toLowerCase();
+      rows = rows.filter(r =>
+        r.desc.toLowerCase().includes(qq) ||
+        r.cat.toLowerCase().includes(qq) ||
+        r.sub.toLowerCase().includes(qq));
+    }
+    return rows;
+  }
+  function renderTable() {
+    const rows = filtered();
+    const body = document.getElementById('mockRows');
+    body.innerHTML = '';
+    rows.slice(0, 40).forEach(r => {
+      const tr = document.createElement('tr');
+      const cls = r.amt >= 0 ? 'pos' : 'neg';
+      tr.innerHTML = `
+        <td style="width:18%">${r.date}</td>
+        <td style="width:30%">${r.desc}</td>
+        <td class="cat" style="width:18%">${r.cat}</td>
+        <td class="sub" style="width:18%">${r.sub}</td>
+        <td class="amt ${cls}" style="width:16%; text-align:right">${r.amt<0?'-':'+'}$${Math.abs(r.amt)}</td>`;
+      body.appendChild(tr);
+    });
+  }
+  function toggleAmt(btn) {
+    const key = { op: btn.dataset.op, v: +btn.dataset.v };
+    const i = state.amts.findIndex(f => f.op===key.op && f.v===key.v);
+    if (i >= 0) { state.amts.splice(i,1); btn.classList.remove('on'); }
+    else        { state.amts.push(key);    btn.classList.add('on'); }
+    renderTable(); drawChart();
+  }
+  function toggleFold(row) { row.classList.toggle('on'); }
+  document.querySelectorAll('.dash-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  let chart = null;
+  function drawChart() {
+    const sel = document.getElementById('chartPick').value;
+    const rows = filtered();
+    const ctx = document.getElementById('mockChart').getContext('2d');
+    if (chart) chart.destroy();
+    Chart.defaults.color = '#7D858D';
+    Chart.defaults.font.family = "'Hammersmith One', sans-serif";
+    Chart.defaults.font.size = 10;
+
+    if (sel === 'donut') {
+      const byCat = {};
+      rows.filter(r=>r.amt<0).forEach(r => { byCat[r.cat] = (byCat[r.cat]||0) + -r.amt; });
+      const labels = Object.keys(byCat);
+      const data = labels.map(l => byCat[l]);
+      chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{
+          data,
+          backgroundColor: labels.map((_,i)=>CAT_COLORS[i % CAT_COLORS.length]),
+          borderColor: '#2a2d31', borderWidth: 2,
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } } },
+        },
+      });
+    } else if (sel === 'trend') {
+      const byMonth = {};
+      rows.filter(r=>r.amt<0).forEach(r => {
+        const m = r.date.slice(0,7);
+        byMonth[m] = (byMonth[m]||0) + -r.amt;
+      });
+      const labels = Object.keys(byMonth).sort();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{
+          label: 'Monthly Spend',
+          data: labels.map(l=>byMonth[l]),
+          borderColor: '#0090FF',
+          backgroundColor: 'rgba(0,144,255,0.12)',
+          tension: 0.3, fill: true,
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { grid: { color: '#3a3f45' } }, y: { grid: { color: '#3a3f45' } } },
+        },
+      });
+    } else if (sel === 'incexp') {
+      const byMonth = {};
+      rows.forEach(r => {
+        const m = r.date.slice(0,7);
+        byMonth[m] = byMonth[m] || { inc: 0, exp: 0 };
+        if (r.amt >= 0) byMonth[m].inc += r.amt;
+        else            byMonth[m].exp += -r.amt;
+      });
+      const labels = Object.keys(byMonth).sort();
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [
+          { label: 'Income',   data: labels.map(l=>byMonth[l].inc), backgroundColor: '#00C896' },
+          { label: 'Expenses', data: labels.map(l=>byMonth[l].exp), backgroundColor: '#FF4444' },
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 9 } } } },
+          scales: { x: { grid: { color: '#3a3f45' } }, y: { grid: { color: '#3a3f45' } } },
+        },
+      });
+    }
+  }
+
+  /* ──────────────────────────────────────────────────────
+     LABEL CYCLER — top tabs / buttons
+     ────────────────────────────────────────────────────── */
+  const CYCLES = {
+    'tab-data':    [['📊','DATA'], ['📋','RECORDS'], ['🗂','ENTRIES'], ['💳','TRANSACTIONS']],
+    'tab-compare': [['⚖','COMPARE'], ['🔀','VS'], ['↔','SIDE BY SIDE'], ['⚖','HEAD-TO-HEAD']],
+    'btn-metrics': [['📐','METRICS'], ['🎯','TARGETS'], ['📏','GOALS'], ['📐','METRICS']],
+    'btn-colors':  [['🎨','COLORS'], ['🖌','THEME'], ['🌈','PALETTE'], ['🎨','COLORS']],
+    'btn-folder':  [['＋','FOLDER'], ['📁','ADD SOURCE'], ['🗃','+ DATA'], ['＋','FOLDER']],
+    'btn-refresh': [['↻','REFRESH'], ['🔄','RELOAD'], ['↻','UPDATE'], ['🔃','SYNC']],
+  };
+  function startCycler() {
+    const targets = document.querySelectorAll('[data-cycle]');
+    const indexes = {};
+    targets.forEach(t => indexes[t.dataset.cycle] = 0);
+    setInterval(() => {
+      targets.forEach(t => {
+        const k = t.dataset.cycle;
+        const list = CYCLES[k]; if (!list) return;
+        indexes[k] = (indexes[k] + 1) % list.length;
+        const [ic, tx] = list[indexes[k]];
+        const icEl = t.querySelector('[data-cycle-ic]');
+        const txEl = t.querySelector('[data-cycle-tx]');
+        if (icEl) icEl.textContent = ic;
+        if (txEl) {
+          txEl.style.transition = 'opacity 0.15s';
+          txEl.style.opacity = 0;
+          setTimeout(() => { txEl.textContent = tx; txEl.style.opacity = 1; }, 150);
+        }
+      });
+    }, 2600);
+  }
+
+  /* ──────────────────────────────────────────────────────
+     VIEW TOGGLE — demo vs real screen
+     ────────────────────────────────────────────────────── */
+  function setView(v) {
+    const demoOn = (v === 'demo');
+    document.getElementById('vtDemo').classList.toggle('on', demoOn);
+    document.getElementById('vtReal').classList.toggle('on', !demoOn);
+    document.getElementById('dashMock').classList.toggle('hidden', !demoOn);
+    document.getElementById('realScreen').classList.toggle('on', !demoOn);
+  }
+
+  /* ──────────────────────────────────────────────────────
+     FEATURE SLIDES
+     ────────────────────────────────────────────────────── */
+  function setSlide(name) {
+    document.querySelectorAll('.feat-cycle button').forEach(b => b.classList.toggle('on', b.dataset.slide === name));
+    document.querySelectorAll('.feat-slide').forEach(s => s.classList.remove('on'));
+    document.getElementById('slide-' + name).classList.add('on');
+  }
+
+  /* ──────────────────────────────────────────────────────
+     TAGGING CYCLER — main + sub with depth
+     ────────────────────────────────────────────────────── */
+  const TAGS = [
+    { ic: '🛒', name: 'Groceries',    sub: '→ Supermarket' },
+    { ic: '🛒', name: 'Groceries',    sub: '→ Supermarket → Produce' },
+    { ic: '⛽', name: 'Transport',    sub: '→ Fuel' },
+    { ic: '⛽', name: 'Transport',    sub: '→ Maintenance → Tires' },
+    { ic: '☕', name: 'Eating Out',   sub: '→ Coffee' },
+    { ic: '🍕', name: 'Eating Out',   sub: '→ Takeout → Late night' },
+    { ic: '🎬', name: 'Entertainment',sub: '→ Streaming' },
+    { ic: '🎮', name: 'Entertainment',sub: '→ Games → Hardware' },
+    { ic: '🏥', name: 'Health',       sub: '→ Pharmacy → Prescription' },
+  ];
+  function startTagCycler() {
+    let i = 0;
+    const frame = document.getElementById('tagFrame');
+    const icoEl = document.getElementById('tagIcon');
+    const nmEl  = document.getElementById('tagName');
+    const sbEl  = document.getElementById('tagSub');
+    setInterval(() => {
+      i = (i + 1) % TAGS.length;
+      frame.style.opacity = 0;
+      setTimeout(() => {
+        icoEl.textContent = TAGS[i].ic;
+        nmEl.textContent  = TAGS[i].name;
+        sbEl.textContent  = TAGS[i].sub;
+        frame.style.opacity = 1;
+      }, 300);
+    }, 2400);
+  }
+
+  /* ──────────────────────────────────────────────────────
+     INFLOW PIPES — SVG paths with traveling glow dots
+     ────────────────────────────────────────────────────── */
+  function drawFlowPipes() {
+    const svg = document.getElementById('flowSvg');
+    const wrap = svg.parentElement;
+    const wrapRect = wrap.getBoundingClientRect();
+    const w = wrapRect.width;
+    const h = wrapRect.height;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.innerHTML = '';
+
+    const pipeA = document.getElementById('pipeA');
+    const pipeB = document.getElementById('pipeB');
+    if (!pipeA || !pipeB) return;
+    const aR = pipeA.getBoundingClientRect();
+    const bR = pipeB.getBoundingClientRect();
+
+    // start points: bottom-center of each pipe-link
+    const ax = aR.left - wrapRect.left + aR.width/2;
+    const ay = aR.bottom - wrapRect.top;
+    const bx = bR.left - wrapRect.left + bR.width/2;
+    const by = bR.bottom - wrapRect.top;
+
+    // converge to a single point at the bottom-center of the inflow section
+    // (which is the top edge of the mock below)
+    const tx = w / 2;
+    const ty = h - 4;
+
+    // bezier paths
+    const pathA = `M ${ax} ${ay} C ${ax} ${ay+30}, ${tx} ${ty-30}, ${tx} ${ty}`;
+    const pathB = `M ${bx} ${by} C ${bx} ${by+30}, ${tx} ${ty-30}, ${tx} ${ty}`;
+
+    const ns = 'http://www.w3.org/2000/svg';
+    const defs = document.createElementNS(ns, 'defs');
+    defs.innerHTML = `
+      <linearGradient id="pgrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0090ff" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#006bbf" stop-opacity="0.9"/>
+      </linearGradient>
+    `;
+    svg.appendChild(defs);
+
+    // two main paths
+    [pathA, pathB].forEach((d, idx) => {
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('class', 'flow-path');
+      p.setAttribute('id', 'flowP' + idx);
+      svg.appendChild(p);
+    });
+
+    // animated traveling dots
+    [pathA, pathB].forEach((d, idx) => {
+      const dot = document.createElementNS(ns, 'circle');
+      dot.setAttribute('r', '3.5');
+      dot.setAttribute('class', 'flow-dot');
+      const anim = document.createElementNS(ns, 'animateMotion');
+      anim.setAttribute('dur', '2.4s');
+      anim.setAttribute('repeatCount', 'indefinite');
+      anim.setAttribute('begin', idx === 0 ? '0s' : '1.2s');
+      anim.setAttribute('path', d);
+      dot.appendChild(anim);
+      svg.appendChild(dot);
+    });
+
+    // an "indicator" pulse at the convergence point
+    const pulse = document.createElementNS(ns, 'circle');
+    pulse.setAttribute('cx', tx);
+    pulse.setAttribute('cy', ty);
+    pulse.setAttribute('r', '5');
+    pulse.setAttribute('fill', '#0090ff');
+    pulse.setAttribute('opacity', '0.7');
+    pulse.style.filter = 'drop-shadow(0 0 10px #0090ff)';
+    const animR = document.createElementNS(ns, 'animate');
+    animR.setAttribute('attributeName', 'r');
+    animR.setAttribute('values', '4;9;4');
+    animR.setAttribute('dur', '1.6s');
+    animR.setAttribute('repeatCount', 'indefinite');
+    const animO = document.createElementNS(ns, 'animate');
+    animO.setAttribute('attributeName', 'opacity');
+    animO.setAttribute('values', '0.9;0.3;0.9');
+    animO.setAttribute('dur', '1.6s');
+    animO.setAttribute('repeatCount', 'indefinite');
+    pulse.appendChild(animR);
+    pulse.appendChild(animO);
+    svg.appendChild(pulse);
+  }
+
+  /* ──────────────────────────────────────────────────────
+     MODAL
+     ────────────────────────────────────────────────────── */
+  function openModal()  { document.getElementById('modalBack').classList.add('open'); }
+  function closeModal() { document.getElementById('modalBack').classList.remove('open'); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* INIT */
+  renderCats();
+  renderTable();
+  drawChart();
+  startCycler();
+  startTagCycler();
+  drawFlowPipes();
+  window.addEventListener('resize', () => {
+    clearTimeout(window._rt);
+    window._rt = setTimeout(drawFlowPipes, 120);
+  });
+</script>
+</body>
+</html>
