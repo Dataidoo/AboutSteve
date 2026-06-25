@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>See Your Whole Warehouse Move — Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#e0e5ec;
+    --dark:#a3b1c6;
+    --light:#ffffff;
+    --ink:#2d3748;
+    --ink2:#566377;
+    --muted:#8a9bb0;
+    --blue:#4a6fa5;
+    --green:#3a9e7e;
+    --amber:#c97b2e;
+    --mono:'JetBrains Mono',monospace;
+    --raise:7px 7px 16px var(--dark), -7px -7px 16px var(--light);
+    --raise-sm:4px 4px 9px var(--dark), -4px -4px 9px var(--light);
+    --inset:inset 5px 5px 11px var(--dark), inset -5px -5px 11px var(--light);
+    --inset-sm:inset 3px 3px 7px var(--dark), inset -3px -3px 7px var(--light);
+    --r:22px; --r-sm:15px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    padding:22px 16px 70px;
+  }
+  .wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:22px;}
+
+  .back{
+    align-self:flex-start;
+    display:inline-flex;align-items:center;gap:10px;
+    padding:11px 18px 11px 14px;
+    background:var(--bg);
+    border-radius:40px;
+    box-shadow:var(--raise-sm);
+    text-decoration:none;
+    color:var(--ink2);
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    transition:box-shadow .18s ease, color .18s ease, transform .18s ease;
+  }
+  .back:hover{color:var(--blue);transform:translateX(-2px);}
+  .back:active{box-shadow:var(--inset-sm);}
+  .back svg{width:16px;height:16px;}
+
+  .card{
+    background:var(--bg);
+    border-radius:var(--r);
+    box-shadow:var(--raise);
+    padding:28px 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .inset{background:var(--bg);border-radius:var(--r-sm);box-shadow:var(--inset);}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--blue);
+    display:flex;align-items:center;gap:9px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{content:'';width:26px;height:2px;background:var(--blue);border-radius:1px;}
+
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(30px,8vw,46px);
+    font-weight:700;
+    line-height:1.08;
+    letter-spacing:-0.03em;
+  }
+  h1 .hl{color:var(--blue);}
+  h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(22px,5.5vw,28px);
+    font-weight:600;
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    margin-bottom:14px;
+  }
+  .lead{font-size:clamp(16px,4vw,18px);color:var(--ink2);margin-top:18px;line-height:1.65;}
+  p.body{color:var(--ink2);}
+  p.body + p.body{margin-top:14px;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px;}
+  .chip{
+    background:var(--bg);box-shadow:var(--raise-sm);
+    border-radius:100px;padding:7px 15px;
+    font-family:var(--mono);font-size:12px;color:var(--ink2);
+  }
+  .chip.b{color:var(--blue);font-weight:600;}
+
+  /* hero signal pulse */
+  .pulse{position:absolute;top:-30px;right:-30px;width:200px;height:200px;pointer-events:none;}
+  .pulse .dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:var(--blue);box-shadow:0 0 14px rgba(74,111,165,.4);}
+  .pulse .ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;border:2px solid var(--blue);opacity:0;animation:pp 3.6s ease-out infinite;}
+  .pulse .ring:nth-child(2){animation-delay:1.2s;}
+  .pulse .ring:nth-child(3){animation-delay:2.4s;}
+  @keyframes pp{0%{width:16px;height:16px;opacity:.6;}100%{width:200px;height:200px;opacity:0;}}
+
+  /* cost contrast */
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-top:6px;}
+  .vs .num{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-0.03em;line-height:1;}
+  .vs .big-old{font-size:clamp(30px,9vw,46px);color:var(--muted);}
+  .vs .big-new{font-size:clamp(34px,11vw,56px);color:var(--green);}
+  .vs .cap{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.4;}
+  .vs .cap.b{color:var(--green);}
+  .vs .versus{font-family:var(--mono);font-size:13px;color:var(--muted);padding:0 4px;}
+  .vs .col{text-align:center;}
+
+  /* steps */
+  .steps{display:flex;flex-direction:column;gap:14px;margin-top:6px;}
+  .step{display:flex;gap:16px;align-items:flex-start;}
+  .step .badge{
+    flex-shrink:0;width:48px;height:48px;border-radius:14px;
+    background:var(--bg);box-shadow:var(--raise-sm);
+    display:flex;align-items:center;justify-content:center;color:var(--blue);
+  }
+  .step h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;margin-bottom:3px;}
+  .step p{font-size:15px;color:var(--ink2);line-height:1.5;}
+  .aside{
+    margin-top:18px;border-radius:var(--r-sm);box-shadow:var(--inset-sm);background:var(--bg);
+    padding:16px 18px;font-size:14.5px;color:var(--ink2);line-height:1.6;
+  }
+  .aside b{color:var(--ink);}
+
+  /* diagram */
+  .well{background:var(--bg);border-radius:var(--r-sm);box-shadow:var(--inset);padding:16px;}
+  .well svg{display:block;width:100%;height:auto;}
+  .legend{display:flex;flex-wrap:wrap;gap:12px 16px;margin-top:14px;}
+  .leg{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--ink2);}
+  .sw{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+  .sw.sq{border-radius:3px;}
+  .sw.ring{background:transparent;border:1.6px dashed var(--blue);}
+
+  /* benefits */
+  .benefits{display:grid;grid-template-columns:1fr;gap:14px;}
+  .ben{display:flex;gap:15px;align-items:flex-start;padding:18px 18px;border-radius:var(--r-sm);box-shadow:var(--raise-sm);background:var(--bg);}
+  .ben .ic{flex-shrink:0;width:44px;height:44px;border-radius:12px;background:var(--bg);box-shadow:var(--inset-sm);display:flex;align-items:center;justify-content:center;color:var(--blue);}
+  .ben h3{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin-bottom:4px;}
+  .ben p{font-size:14.5px;color:var(--ink2);line-height:1.5;}
+
+  /* shopping list */
+  .list{display:flex;flex-direction:column;gap:9px;margin-top:6px;}
+  .row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:var(--r-sm);box-shadow:var(--raise-sm);background:var(--bg);}
+  .row .name{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;flex:1;}
+  .row .qty{font-family:var(--mono);font-size:12px;color:var(--muted);flex-shrink:0;}
+  .row .cost{font-family:var(--mono);font-weight:600;font-size:14px;color:var(--blue);flex-shrink:0;min-width:64px;text-align:right;}
+  .row.total{box-shadow:var(--inset-sm);margin-top:5px;}
+  .row.total .name{font-weight:700;}
+  .row.total .cost{color:var(--green);font-size:18px;}
+  .free{color:var(--green)!important;}
+
+  /* honest notes */
+  .notes{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+  .note{padding:16px 18px;border-radius:var(--r-sm);box-shadow:var(--inset-sm);background:var(--bg);}
+  .note h3{font-family:'Space Grotesk',sans-serif;font-size:15.5px;font-weight:600;margin-bottom:5px;}
+  .note p{font-size:14px;color:var(--ink2);line-height:1.55;}
+
+  .foot{text-align:center;padding:10px 0 0;}
+  .foot p{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.05em;}
+
+  @media (min-width:600px){
+    .card{padding:34px 32px;}
+    .benefits{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pulse .ring{animation:none;opacity:.15;width:90px;height:90px;}
+    [data-anim]{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../../index.html" aria-label="Back to About Steve">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span>Back</span>
+  </a>
+
+  <!-- HERO -->
+  <section class="card">
+    <div class="pulse"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="dot"></span></div>
+    <div class="eyebrow">Real-time warehouse tracking</div>
+    <h1>See your whole<br>warehouse move.<br><span class="hl">Live.</span></h1>
+    <p class="lead">Small tags on your forklifts and pallets. Cheap sensors in the rafters. A live map of everything that moves — so you can finally see where time, money, and effort get wasted.</p>
+    <div class="chips">
+      <span class="chip b">No $100k system</span>
+      <span class="chip">Off-the-shelf parts</span>
+      <span class="chip">Works in any building</span>
+    </div>
+  </section>
+
+  <!-- COST HOOK -->
+  <section class="card">
+    <div class="eyebrow">The whole point</div>
+    <h2>The big tracking systems cost a fortune. This one doesn't.</h2>
+    <div class="vs">
+      <div class="col">
+        <div class="num big-old">$100k</div>
+        <div class="cap">What the big-brand RFID systems run, plus yearly software fees</div>
+      </div>
+      <div class="versus">vs</div>
+      <div class="col">
+        <div class="num big-new">$1.5k</div>
+        <div class="cap b">Total parts to cover a 50,000 sq ft floor. No subscriptions.</div>
+      </div>
+    </div>
+    <p class="body" style="margin-top:22px;font-size:15px;">Want to test the idea first? A working proof-of-concept — three sensors and five tags — runs about <b style="color:var(--ink);">$75</b>.</p>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="card">
+    <div class="eyebrow">How it works</div>
+    <h2>Three simple parts</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L3 13V3h10l7.59 7.59a2 2 0 0 1 0 2.82Z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <h3>1 &nbsp;Tag it</h3>
+          <p>Stick a small battery-powered tag on anything you want to follow — forklifts, carts, pallets. About $18 each, and the battery lasts years.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a7 7 0 0 1 14 0"/><path d="M2 9a11 11 0 0 1 20 0"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <h3>2 &nbsp;Sensors listen</h3>
+          <p>Inexpensive sensors on the ceiling pick up each tag's signal. They just listen — nothing to wire into your existing systems.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg>
+        </div>
+        <div>
+          <h3>3 &nbsp;Watch the map</h3>
+          <p>Software turns those signals into a moving dot on your floor plan. Open it on any screen and watch the floor in real time.</p>
+        </div>
+      </div>
+    </div>
+    <div class="aside">It's basically <b>indoor GPS</b>. When three sensors hear the same tag, that's enough to pin it on the map — the same trick your phone's GPS uses, just built for inside a building.</div>
+  </section>
+
+  <!-- LIVE MAP DIAGRAM -->
+  <section class="card">
+    <div class="eyebrow">What you see</div>
+    <h2>The paths your team actually walks</h2>
+    <p class="body" style="font-size:15px;margin-bottom:18px;">Every trip gets drawn automatically. The wasted walking, the long waits, the spots where everything piles up — suddenly they're impossible to miss.</p>
+    <div class="well">
+      <svg viewBox="0 0 600 380" role="img" aria-label="Top-down warehouse map showing zones, ceiling sensors, and a tagged item moving along its route">
+        <defs>
+          <filter id="lift" x="-60%" y="-60%" width="220%" height="220%">
+            <feDropShadow dx="2" dy="2" stdDeviation="1.8" flood-color="#a3b1c6" flood-opacity="0.9"/>
+            <feDropShadow dx="-1.6" dy="-1.6" stdDeviation="1.3" flood-color="#ffffff" flood-opacity="0.95"/>
+          </filter>
+          <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- zones -->
+        <g font-family="JetBrains Mono, monospace" font-size="16" font-weight="600" letter-spacing="0.5">
+          <rect x="22" y="22" width="160" height="96" rx="9" fill="#4a6fa5" fill-opacity="0.08" stroke="#4a6fa5" stroke-opacity="0.45" stroke-width="1.3" stroke-dasharray="4 4"/>
+          <text x="34" y="48" fill="#4a6fa5">INBOUND</text>
+          <rect x="418" y="22" width="160" height="96" rx="9" fill="#4a6fa5" fill-opacity="0.08" stroke="#4a6fa5" stroke-opacity="0.45" stroke-width="1.3" stroke-dasharray="4 4"/>
+          <text x="430" y="48" fill="#4a6fa5">OUTBOUND</text>
+          <rect x="22" y="262" width="160" height="96" rx="9" fill="#3a9e7e" fill-opacity="0.08" stroke="#3a9e7e" stroke-opacity="0.45" stroke-width="1.3" stroke-dasharray="4 4"/>
+          <text x="34" y="346" fill="#3a9e7e">STAGING</text>
+          <rect x="418" y="262" width="160" height="96" rx="9" fill="#c97b2e" fill-opacity="0.09" stroke="#c97b2e" stroke-opacity="0.45" stroke-width="1.3" stroke-dasharray="4 4"/>
+          <text x="430" y="346" fill="#c97b2e">PACKING</text>
+          <text x="300" y="44" fill="#8a9bb0" text-anchor="middle" letter-spacing="2">AISLES</text>
+        </g>
+
+        <!-- racking -->
+        <g fill="#c2ccda" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.7">
+          <rect x="222" y="130" width="20" height="140" rx="4"/>
+          <rect x="270" y="130" width="20" height="140" rx="4"/>
+          <rect x="318" y="130" width="20" height="140" rx="4"/>
+          <rect x="366" y="130" width="20" height="140" rx="4"/>
+        </g>
+
+        <!-- route -->
+        <path id="route" d="M 100 80 C 145 125, 150 155, 200 170 S 250 150, 300 190 S 360 255, 410 235 S 500 185, 500 300 S 540 150, 500 80"
+          fill="none" stroke="#4a6fa5" stroke-width="2.4" stroke-dasharray="4 5" opacity="0.45" stroke-linecap="round"/>
+
+        <!-- sensors -->
+        <g filter="url(#lift)">
+          <circle cx="40" cy="40" r="13" fill="#e0e5ec"/><circle cx="560" cy="40" r="13" fill="#e0e5ec"/>
+          <circle cx="40" cy="340" r="13" fill="#e0e5ec"/><circle cx="560" cy="340" r="13" fill="#e0e5ec"/>
+          <circle cx="300" cy="195" r="13" fill="#e0e5ec"/>
+        </g>
+        <g fill="#3a9e7e">
+          <circle cx="40" cy="40" r="4.5"/><circle cx="560" cy="40" r="4.5"/>
+          <circle cx="40" cy="340" r="4.5"/><circle cx="560" cy="340" r="4.5"/><circle cx="300" cy="195" r="4.5"/>
+        </g>
+        <circle cx="300" cy="195" r="13" fill="none" stroke="#3a9e7e" stroke-width="1.6" opacity="0.6" data-anim>
+          <animate attributeName="r" values="13;34;13" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;0;0.6" dur="3s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- moving item -->
+        <circle r="5" fill="#4a6fa5" opacity="0.25" data-anim><animateMotion dur="9s" repeatCount="indefinite" begin="-0.8s"><mpath href="#route"/></animateMotion></circle>
+        <circle r="6" fill="#4a6fa5" opacity="0.45" data-anim><animateMotion dur="9s" repeatCount="indefinite" begin="-0.4s"><mpath href="#route"/></animateMotion></circle>
+        <circle r="8.5" fill="#4a6fa5" filter="url(#glow)"><animateMotion dur="9s" repeatCount="indefinite"><mpath href="#route"/></animateMotion><animate attributeName="opacity" values="1;1" dur="9s" repeatCount="indefinite"/></circle>
+      </svg>
+      <div class="legend">
+        <span class="leg"><span class="sw" style="background:#3a9e7e;"></span>Ceiling sensor</span>
+        <span class="leg"><span class="sw" style="background:#4a6fa5;"></span>Tagged item</span>
+        <span class="leg"><span class="sw ring"></span>Zone you draw</span>
+        <span class="leg"><span class="sw sq" style="background:#c2ccda;"></span>Racking</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="card">
+    <div class="eyebrow">Why it's worth it</div>
+    <h2>Three problems it solves</h2>
+    <div class="benefits">
+      <div class="ben">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div>
+          <h3>Find the slow spots</h3>
+          <p>See exactly how long things sit in each area. No clipboards, no stopwatches, no guessing where the holdups are.</p>
+        </div>
+      </div>
+      <div class="ben">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c3-1 4-4 4-7M8 13a3 3 0 1 1 6 0c0 3 1 5 4 6"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="9" r="2"/></svg></div>
+        <div>
+          <h3>Cut the wasted steps</h3>
+          <p>The map shows every unnecessary trip across the floor. Trim the back-and-forth and you trim the labour cost with it.</p>
+        </div>
+      </div>
+      <div class="ben">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6l-7-3Z"/><path d="M12 9v3M12 15h.01"/></svg></div>
+        <div>
+          <h3>Stop losing things</h3>
+          <p>If a tagged item leaves when it shouldn't, you get an instant alert and a record of the path it took on the way out.</p>
+        </div>
+      </div>
+    </div>
+    <div class="aside">Because nobody's standing there with a stopwatch, your team works the way they normally would — so what you measure is what actually happens, not what people do when they know they're being watched.</div>
+  </section>
+
+  <!-- SHOPPING LIST -->
+  <section class="card">
+    <div class="eyebrow">The whole shopping list</div>
+    <h2>Everything to cover a 50,000 sq ft floor</h2>
+    <div class="list">
+      <div class="row"><span class="name">Ceiling sensors</span><span class="qty">×12</span><span class="cost">$138</span></div>
+      <div class="row"><span class="name">Cases &amp; power</span><span class="qty">×12</span><span class="cost">$168</span></div>
+      <div class="row"><span class="name">Asset tags</span><span class="qty">×50</span><span class="cost">$925</span></div>
+      <div class="row"><span class="name">Hub computer</span><span class="qty">×1</span><span class="cost">$110</span></div>
+      <div class="row"><span class="name">Cabling &amp; bits</span><span class="qty">—</span><span class="cost">$145</span></div>
+      <div class="row"><span class="name">Software</span><span class="qty">free &amp; open</span><span class="cost free">$0</span></div>
+      <div class="row total"><span class="name">Total</span><span class="qty"></span><span class="cost">$1,486</span></div>
+    </div>
+    <p class="body" style="font-size:13.5px;margin-top:14px;color:var(--muted);">Prices in CAD. Budget around $2,750 fully installed once you add labour and a little contingency.</p>
+  </section>
+
+  <!-- HONEST PART -->
+  <section class="card">
+    <div class="eyebrow">The honest part</div>
+    <h2>It's not magic — here's the catch</h2>
+    <p class="body" style="font-size:15px;margin-bottom:18px;">Cheap and useful, but you should know its limits before you count on it.</p>
+    <div class="notes">
+      <div class="note">
+        <h3>Close, not pinpoint</h3>
+        <p>It's accurate to within a few metres — perfect for "which area is it in, and how long was it there," not "which exact shelf." For workflow and bottlenecks, that's plenty.</p>
+      </div>
+      <div class="note">
+        <h3>Big metal blocks signals</h3>
+        <p>Tall steel racking gets in the way, so dense areas need a few more sensors. Worth a quick walk-through before you decide how many to buy.</p>
+      </div>
+      <div class="note">
+        <h3>Battery vs. speed</h3>
+        <p>Tags can update faster or last longer, but not both at once. Fast updates for busy forklifts, slow-and-steady for things that rarely move.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot"><p>Real-time location tracking · built from open, off-the-shelf parts</p></div>
+
+</div>
+</body>
+</html>

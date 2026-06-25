@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transit Mapper — Overlap Radius</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#e2e8ec;
+    --dark:#b2bcc4;
+    --light:#ffffff;
+    --ink:#26333d;
+    --ink2:#566671;
+    --muted:#8a98a3;
+    --teal:#1f6f78;
+    --teal-soft:#3a8f99;
+    --magenta:#d94a86;
+    --amber:#c97b2e;
+    --indigo:#5a5fb8;
+    --mono:'JetBrains Mono',monospace;
+    --raise:7px 7px 16px var(--dark), -7px -7px 16px var(--light);
+    --raise-sm:4px 4px 9px var(--dark), -4px -4px 9px var(--light);
+    --inset:inset 5px 5px 11px var(--dark), inset -5px -5px 11px var(--light);
+    --inset-sm:inset 3px 3px 7px var(--dark), inset -3px -3px 7px var(--light);
+    --r:22px; --r-sm:15px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    padding:22px 16px 70px;
+  }
+  .wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px;}
+
+  .back{
+    align-self:flex-start;
+    display:inline-flex;align-items:center;gap:10px;
+    padding:11px 18px 11px 14px;
+    background:var(--bg);border-radius:40px;box-shadow:var(--raise-sm);
+    text-decoration:none;color:var(--ink2);
+    font-family:var(--mono);font-size:12px;font-weight:600;
+    letter-spacing:0.08em;text-transform:uppercase;
+    transition:box-shadow .18s ease,color .18s ease,transform .18s ease;
+  }
+  .back:hover{color:var(--teal);transform:translateX(-2px);}
+  .back:active{box-shadow:var(--inset-sm);}
+  .back svg{width:16px;height:16px;}
+
+  .card{
+    background:var(--bg);border-radius:var(--r);box-shadow:var(--raise);
+    padding:28px 24px;position:relative;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);
+    display:flex;align-items:center;gap:9px;margin-bottom:14px;
+  }
+  .eyebrow::before{content:'';width:26px;height:2px;background:var(--teal);border-radius:1px;}
+
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(30px,8vw,46px);font-weight:700;
+    line-height:1.06;letter-spacing:-0.03em;
+  }
+  h1 .hl{color:var(--teal);}
+  h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(22px,5.5vw,28px);font-weight:600;
+    line-height:1.18;letter-spacing:-0.02em;
+  }
+  .lead{font-size:clamp(15.5px,4vw,17px);color:var(--ink2);margin-top:18px;line-height:1.65;}
+  p.body{color:var(--ink2);font-size:15.5px;}
+  p.body + p.body{margin-top:12px;}
+
+  /* HERO image — directly under headline */
+  .hero-shot{
+    margin-top:22px;
+    border-radius:var(--r-sm);
+    box-shadow:var(--inset-sm);
+    background:var(--bg);
+    padding:10px;
+  }
+  .hero-shot img{display:block;width:100%;height:auto;border-radius:11px;}
+  .hero-cap{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:0.14em;
+    text-transform:uppercase;color:var(--muted);margin-top:10px;text-align:center;
+  }
+
+  /* =========================================================
+     SECTION A — WHAT IT DOES
+     Visual: overlapping rings hero + metric strip + short bullets
+     ========================================================= */
+  .rings-stage{
+    margin:8px 0 22px;
+    height:170px;
+    position:relative;
+    border-radius:var(--r-sm);
+    box-shadow:var(--inset-sm);
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.5), transparent 60%),
+      var(--bg);
+    overflow:hidden;
+  }
+  .ring{
+    position:absolute;top:50%;left:50%;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    mix-blend-mode:multiply;
+  }
+  .ring.r1{width:80px;height:80px;background:rgba(217,74,134,.32);}
+  .ring.r2{width:140px;height:140px;background:rgba(201,123,46,.28);}
+  .ring.r3{width:200px;height:200px;background:rgba(90,95,184,.24);}
+  .ring.walk{
+    width:60px;height:60px;
+    background:transparent;
+    border:1.6px dashed var(--muted);
+  }
+  .ring-pin{
+    position:absolute;top:50%;left:50%;
+    width:14px;height:14px;border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px var(--bg), 0 0 0 4px var(--teal);
+    transform:translate(-50%,-50%);
+  }
+
+  .metric-strip{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:12px;margin-bottom:22px;
+  }
+  .metric{
+    background:var(--bg);border-radius:var(--r-sm);
+    box-shadow:var(--raise-sm);padding:14px 12px;text-align:center;
+  }
+  .metric .v{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:clamp(20px,5vw,26px);color:var(--teal);
+    letter-spacing:-0.02em;line-height:1;
+  }
+  .metric .v .u{font-size:13px;color:var(--ink2);font-weight:500;margin-left:2px;}
+  .metric .k{
+    font-family:var(--mono);font-size:9.5px;font-weight:600;
+    letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);
+    margin-top:6px;
+  }
+
+  .does-list{display:flex;flex-direction:column;gap:10px;}
+  .does-row{
+    display:flex;align-items:flex-start;gap:14px;
+    padding:12px 0;
+    border-bottom:1px solid rgba(178,188,196,.45);
+  }
+  .does-row:last-child{border-bottom:none;}
+  .does-row .num{
+    flex:none;
+    font-family:var(--mono);font-weight:600;font-size:12px;
+    color:var(--teal);letter-spacing:0.1em;
+    padding-top:2px;min-width:32px;
+  }
+  .does-row .tx b{
+    display:block;font-family:'Space Grotesk',sans-serif;
+    font-weight:600;font-size:15.5px;color:var(--ink);
+    margin-bottom:2px;letter-spacing:-0.01em;
+  }
+  .does-row .tx span{font-size:14.5px;color:var(--ink2);line-height:1.55;}
+
+  /* =========================================================
+     SECTION B — HOW IT HELPS
+     Visual: scenario story card + before/after compare
+     ========================================================= */
+  .scenario{
+    margin-top:18px;
+    padding:22px 22px 20px;
+    border-radius:var(--r-sm);
+    box-shadow:var(--inset);
+    background:var(--bg);
+    position:relative;
+  }
+  .scenario .tag{
+    display:inline-block;
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--magenta);padding:4px 10px;border-radius:30px;
+    background:var(--bg);box-shadow:var(--raise-sm);
+    margin-bottom:14px;
+  }
+  .scenario .quote{
+    font-family:'Space Grotesk',sans-serif;font-weight:500;
+    font-size:clamp(17px,4.5vw,21px);line-height:1.4;
+    color:var(--ink);letter-spacing:-0.015em;
+  }
+  .scenario .who{
+    margin-top:14px;font-family:var(--mono);font-size:11px;
+    letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);
+  }
+
+  .compare{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;
+  }
+  @media (max-width:520px){.compare{grid-template-columns:1fr;}}
+  .compare-col{
+    padding:18px 16px;border-radius:var(--r-sm);
+    background:var(--bg);
+  }
+  .compare-col.before{box-shadow:var(--raise-sm);}
+  .compare-col.after{
+    box-shadow:var(--raise-sm), 0 0 0 1.5px rgba(31,111,120,.35) inset;
+  }
+  .compare-col .label{
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:0.18em;text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .compare-col.before .label{color:var(--muted);}
+  .compare-col.after  .label{color:var(--teal);}
+  .compare-col .line{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;
+    font-size:15px;color:var(--ink);line-height:1.35;letter-spacing:-0.01em;
+  }
+  .compare-col .sub{
+    margin-top:6px;font-size:13px;color:var(--ink2);line-height:1.5;
+  }
+
+  .help-bullets{
+    margin-top:20px;display:flex;flex-direction:column;gap:8px;
+  }
+  .help-bullets li{
+    list-style:none;padding-left:22px;position:relative;
+    font-size:15px;color:var(--ink2);line-height:1.55;
+  }
+  .help-bullets li::before{
+    content:'';position:absolute;left:0;top:9px;
+    width:10px;height:10px;border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px rgba(31,111,120,.18);
+  }
+
+  /* Download */
+  .dl-card{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .dl-info{flex:1;min-width:200px;}
+  .dl-info .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .dl-info .fname{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:var(--ink);}
+  .dl-info .fnote{font-size:13px;color:var(--ink2);margin-top:3px;}
+  .dl-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:14px 22px;background:var(--bg);border-radius:14px;
+    box-shadow:var(--raise-sm);text-decoration:none;color:var(--teal);
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:0.04em;
+    transition:box-shadow .18s ease,transform .18s ease,color .18s ease;
+  }
+  .dl-btn:hover{transform:translateY(-1px);color:var(--ink);}
+  .dl-btn:active{box-shadow:var(--inset-sm);transform:translateY(0);}
+  .dl-btn svg{width:18px;height:18px;}
+
+  .foot{
+    text-align:center;font-family:var(--mono);font-size:11px;
+    letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);padding:8px 0 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../../index.html" aria-label="Back to About Steve">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span>Back</span>
+  </a>
+
+  <!-- HERO — image first, then headline under it -->
+  <section class="card">
+    <div class="hero-shot" style="margin-top:0;">
+      <img src="transit_mapper.png" alt="Transit Mapper dashboard showing Peterborough with overlapping reach radii">
+    </div>
+    <div class="eyebrow" style="margin-top:22px;">Overlap Radius · Transit Reach</div>
+    <h1>See how far <span class="hl">your transit</span> actually takes you.</h1>
+    <p class="lead">A visual reach map for Peterborough + GO. Drop a pin, set how much time you have, and watch overlapping rings show exactly where you can get — by walking, local bus, or GO route.</p>
+  </section>
+
+  <!-- WHAT IT DOES — rings visual + metric strip + numbered list -->
+  <section class="card">
+    <div class="eyebrow">What it actually does</div>
+    <h2>Not a map of bus lines — a map of <em style="font-style:normal;color:var(--teal);">your time.</em></h2>
+
+    <div class="rings-stage" aria-hidden="true">
+      <div class="ring r3"></div>
+      <div class="ring r2"></div>
+      <div class="ring r1"></div>
+      <div class="ring walk"></div>
+      <div class="ring-pin"></div>
+    </div>
+
+    <div class="metric-strip">
+      <div class="metric"><div class="v">22<span class="u">km/h</span></div><div class="k">bus speed</div></div>
+      <div class="metric"><div class="v">20<span class="u">min</span></div><div class="k">avg wait</div></div>
+      <div class="metric"><div class="v">5<span class="u">km/h</span></div><div class="k">walk baseline</div></div>
+    </div>
+
+    <div class="does-list">
+      <div class="does-row">
+        <div class="num">01</div>
+        <div class="tx"><b>Math, not magic.</b><span>Reach is calculated from bus speed and the average wait based on how often that route runs — not just route geometry.</span></div>
+      </div>
+      <div class="does-row">
+        <div class="num">02</div>
+        <div class="tx"><b>The walk ring is always on.</b><span>A dashed grey circle shows how far you'd get on foot — an instant baseline against every transit option.</span></div>
+      </div>
+      <div class="does-row">
+        <div class="num">03</div>
+        <div class="tx"><b>Tweak anything.</b><span>Bus speed, frequency, custom routes — model real-world conditions when the Local 3 is slow, or test a route that doesn't exist yet.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT HELPS — scenario quote + before/after + bullets -->
+  <section class="card">
+    <div class="eyebrow">How it actually helps</div>
+    <h2>For anyone whose day depends on the bus.</h2>
+
+    <div class="scenario">
+      <span class="tag">A 45-minute window</span>
+      <div class="quote">"I'm at City Hall with 45 minutes before my next appointment. Can I make it to Lansdowne and back, or do I need to reschedule?"</div>
+      <div class="who">— the question this app answers in 3 seconds</div>
+    </div>
+
+    <div class="compare">
+      <div class="compare-col before">
+        <div class="label">Static map</div>
+        <div class="line">Shows you where the bus goes.</div>
+        <div class="sub">You're still flipping between the schedule, a clock, and Google Maps trying to do the math yourself.</div>
+      </div>
+      <div class="compare-col after">
+        <div class="label">Overlap radius</div>
+        <div class="line">Shows you where you can be.</div>
+        <div class="sub">Rings update the moment you change start point, time, or route — answer is on screen.</div>
+      </div>
+    </div>
+
+    <ul class="help-bullets">
+      <li>Strips the clutter — no jargon, no schedule tables, no cross-referencing.</li>
+      <li>Compares walk, local, and GO simultaneously instead of one at a time.</li>
+      <li>Honest about wait time, so what you see on screen matches what you'll actually experience.</li>
+    </ul>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="card">
+    <div class="eyebrow">Get the files</div>
+    <div class="dl-card">
+      <div class="dl-info">
+        <div class="lbl">Download</div>
+        <div class="fname">transit_mapper.zip</div>
+        <div class="fnote">Self-contained build — open and run.</div>
+      </div>
+      <a class="dl-btn" href="transit_mapper.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Download ZIP</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="foot">Transit Mapper · Peterborough · 2026</div>
+
+</div>
+</body>
+</html>
