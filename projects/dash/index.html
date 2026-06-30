@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -107,20 +107,21 @@
 
   /* INFLOW PIPES — two link tiles flowing into the mock */
   .inflow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin: 8px auto 0;
+    display: flex;
+    justify-content: center;
+    grid-template-columns: .5fr .5fr;
+    gap: 100px;
+    margin: 0px auto 0;
     max-width: 760px;
     position: relative;
-    padding-bottom: 60px;   /* room for the SVG paths */
+    padding-bottom: 50px;   /* room for the SVG paths */
   }
   .pipe-link {
     background: transparent; border-radius: 0;
     padding: 6px 4px;
     box-shadow: none;
     text-decoration: none; color: var(--ink);
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center;gap: 10px;
     transition: color 0.2s ease;
     position: relative; z-index: 3;
   }
@@ -132,7 +133,7 @@
   .pipe-ico {
     width: 22px; height: 22px; flex: none;
     border-radius: 0;
-    display: grid; place-items: center;
+    display: none; place-items: center;
     background: transparent;
     box-shadow: none;
     color: var(--accent); font-size: 18px;
@@ -554,19 +555,20 @@
 
   /* TAGGING SECTION — bare on background, icon stays raised */
   .tagging {
-    display: grid;
+    display: flex;
+    justify-content: center;
     grid-template-columns: 280px 1fr;
     gap: 32px;
-    align-items: center;
     padding: 28px 8px;
     margin-bottom: 36px;
   }
-  @media (max-width: 720px) { .tagging { grid-template-columns: 1fr; } }
+  @media (max-width: 720px) { .tagging { grid-template-columns: 0fr; } }
 
   .tag-cycle {
     aspect-ratio: 1 / 1;
     max-width: 260px;
     display: grid; place-items: center;
+    justify-content: center;
     position: relative;
   }
   .tag-frame {

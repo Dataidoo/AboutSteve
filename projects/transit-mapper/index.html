@@ -57,12 +57,21 @@
     padding:28px 24px;position:relative;
   }
 
+  .carde{
+    background: var(--bg);
+    border-radius: var(--r);
+    box-shadow: none; /* Skips the preset, removes shadow completely */
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
   .eyebrow{
     font-family:var(--mono);font-size:11px;font-weight:600;
     letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);
     display:flex;align-items:center;gap:9px;margin-bottom:14px;
   }
-  .eyebrow::before{content:'';width:26px;height:2px;background:var(--teal);border-radius:1px;}
+  .eyebrow::before{content:'';width:26px;height:4px;background:var(--teal);border-radius:1px;}
 
   h1{
     font-family:'Space Grotesk',sans-serif;
@@ -81,7 +90,7 @@
 
   /* HERO image — directly under headline */
   .hero-shot{
-    margin-top:22px;
+    margin-top:10px;
     border-radius:var(--r-sm);
     box-shadow:var(--inset-sm);
     background:var(--bg);
@@ -273,19 +282,19 @@
   </a>
 
   <!-- HERO — image first, then headline under it -->
-  <section class="card">
+  <section class="carde">
     <div class="hero-shot" style="margin-top:0;">
       <img src="transit_mapper.png" alt="Transit Mapper dashboard showing Peterborough with overlapping reach radii">
     </div>
-    <div class="eyebrow" style="margin-top:22px;">Overlap Radius · Transit Reach</div>
-    <h1>See how far <span class="hl">your transit</span> actually takes you.</h1>
-    <p class="lead">A visual reach map for Peterborough + GO. Drop a pin, set how much time you have, and watch overlapping rings show exactly where you can get — by walking, local bus, or GO route.</p>
+    <div class="eyebrow" style="margin-top:22px;">Overlap Radius</div>
+    <h1>See how far <span class="hl">your transit</span> takes you.</h1>
+    <p class="lead">A visual reach map for local + GO services. Enter routes and watch overlapping rings show exactly where you can get — by walking, local bus, or GO route.</p>
   </section>
 
   <!-- WHAT IT DOES — rings visual + metric strip + numbered list -->
   <section class="card">
     <div class="eyebrow">What it actually does</div>
-    <h2>Not a map of bus lines — a map of <em style="font-style:normal;color:var(--teal);">your time.</em></h2>
+    <h2>Save searching save <em style="font-style:normal;color:var(--teal);">your time.</em></h2>
 
     <div class="rings-stage" aria-hidden="true">
       <div class="ring r3"></div>
@@ -296,64 +305,51 @@
     </div>
 
     <div class="metric-strip">
-      <div class="metric"><div class="v">22<span class="u">km/h</span></div><div class="k">bus speed</div></div>
-      <div class="metric"><div class="v">20<span class="u">min</span></div><div class="k">avg wait</div></div>
+      <div class="metric"><div class="v">2<span class="u"> transfers</span></div><div class="k">local + go</div></div>
+      <div class="metric"><div class="v">30<span class="u">min</span></div><div class="k">stop freq</div></div>
       <div class="metric"><div class="v">5<span class="u">km/h</span></div><div class="k">walk baseline</div></div>
     </div>
 
     <div class="does-list">
       <div class="does-row">
-        <div class="num">01</div>
-        <div class="tx"><b>Math, not magic.</b><span>Reach is calculated from bus speed and the average wait based on how often that route runs — not just route geometry.</span></div>
+        <div class="num">I</div>
+        <div class="tx"><b>Math, not magic.</b><span>Reach is calculated from route data, transfers, walkiing and the average wait based on how often that route runs.</span></div>
       </div>
       <div class="does-row">
-        <div class="num">02</div>
+        <div class="num">II</div>
         <div class="tx"><b>The walk ring is always on.</b><span>A dashed grey circle shows how far you'd get on foot — an instant baseline against every transit option.</span></div>
       </div>
       <div class="does-row">
-        <div class="num">03</div>
-        <div class="tx"><b>Tweak anything.</b><span>Bus speed, frequency, custom routes — model real-world conditions when the Local 3 is slow, or test a route that doesn't exist yet.</span></div>
+        <div class="num">III</div>
+        <div class="tx"><b>Tweak anything.</b><span>Routes, frequency, custom routes — model real-world conditions when the Local 3 is slow. even ridesharing</span></div>
       </div>
     </div>
   </section>
 
   <!-- HOW IT HELPS — scenario quote + before/after + bullets -->
-  <section class="card">
+  <section class="carde">
     <div class="eyebrow">How it actually helps</div>
-    <h2>For anyone whose day depends on the bus.</h2>
+    <h2>Made to see multiple systems in one.</h2>
 
     <div class="scenario">
-      <span class="tag">A 45-minute window</span>
-      <div class="quote">"I'm at City Hall with 45 minutes before my next appointment. Can I make it to Lansdowne and back, or do I need to reschedule?"</div>
-      <div class="who">— the question this app answers in 3 seconds</div>
-    </div>
-
-    <div class="compare">
-      <div class="compare-col before">
-        <div class="label">Static map</div>
-        <div class="line">Shows you where the bus goes.</div>
-        <div class="sub">You're still flipping between the schedule, a clock, and Google Maps trying to do the math yourself.</div>
-      </div>
-      <div class="compare-col after">
-        <div class="label">Overlap radius</div>
-        <div class="line">Shows you where you can be.</div>
-        <div class="sub">Rings update the moment you change start point, time, or route — answer is on screen.</div>
-      </div>
+      <span class="tag">I want to apply to jobs</span>
+      <div class="quote">"How far can I get by what times, and what options are vailable?"</div>
+      <div class="who">— the question this app answers in mere minutes</div>
     </div>
 
     <ul class="help-bullets">
       <li>Strips the clutter — no jargon, no schedule tables, no cross-referencing.</li>
       <li>Compares walk, local, and GO simultaneously instead of one at a time.</li>
-      <li>Honest about wait time, so what you see on screen matches what you'll actually experience.</li>
+      <li>What you see on screen matches what you actually need.</li>
     </ul>
   </section>
 
   <!-- DOWNLOAD -->
   <section class="card">
-    <div class="eyebrow">Get the files</div>
+    <div class="eyebrow">Download</div>
     <div class="dl-card">
       <div class="dl-info">
-        <div class="lbl">Download</div>
+        <div class="lbl">try it out</div>
         <div class="fname">transit_mapper.zip</div>
         <div class="fnote">Self-contained build — open and run.</div>
       </div>
@@ -364,7 +360,7 @@
     </div>
   </section>
 
-  <div class="foot">Transit Mapper · Peterborough · 2026</div>
+  <div class="foot">Transit Mapper ·  2026</div>
 
 </div>
 </body>
